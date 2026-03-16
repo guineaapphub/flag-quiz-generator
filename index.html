@@ -1,372 +1,755 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Flag Quiz Generator 1.1</title>
 
 <style>
+:root{
+  --frame-width:405px;
+  --frame-height:720px;
+  --flag-width:320px;
+  --flag-height:190px;
+  --counter-color:#2ecc71;
+  --counter-outline:#ffffff;
+  --question-bg:#ffffff;
+  --question-color:#2e7d32;
+  --bg1:#00ff00;
+  --bg2:#00ff00;
+}
+
+*{box-sizing:border-box;}
 
 body{
-margin:0;
-font-family:Arial, Helvetica, sans-serif;
-background:#00ff00;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:#101318;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  padding:24px;
 }
 
-/* VIDEO FRAME */
+.container{
+  display:flex;
+  gap:28px;
+  align-items:flex-start;
+}
+
+/* LEFT PANEL */
+
+.controls{
+  width:360px;
+  background:#0d1730;
+  border:1px solid #1f2a45;
+  border-radius:20px;
+  color:#ffffff;
+  padding:24px;
+  box-shadow:0 15px 40px rgba(0,0,0,.35);
+}
+
+.controls h2{
+  margin:0 0 12px;
+  font-size:28px;
+}
+
+.controls p{
+  margin:0 0 18px;
+  color:#b8c2d8;
+  line-height:1.35;
+  font-size:15px;
+}
+
+.grid-2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.field{
+  margin-bottom:14px;
+}
+
+.field label{
+  display:block;
+  margin-bottom:6px;
+  font-size:14px;
+  color:#e8edf8;
+}
+
+.controls input[type="text"],
+.controls input[type="number"],
+.controls select{
+  width:100%;
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid #33415c;
+  background:#1d2940;
+  color:#ffffff;
+  font-size:15px;
+  outline:none;
+}
+
+.controls input[type="color"]{
+  width:100%;
+  height:44px;
+  border:none;
+  border-radius:14px;
+  background:transparent;
+  padding:0;
+  cursor:pointer;
+}
+
+.toggle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:10px 0 0;
+  padding:10px 0;
+  border-top:1px solid #1d2740;
+  font-size:15px;
+}
+
+.actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:16px;
+}
+
+.actions button,
+.full-btn{
+  border:none;
+  border-radius:16px;
+  padding:14px 16px;
+  font-weight:700;
+  font-size:16px;
+  cursor:pointer;
+}
+
+.actions button,
+.full-btn.primary{
+  background:#24b95a;
+  color:#ffffff;
+}
+
+.actions button.secondary,
+.full-btn.secondary{
+  background:#273552;
+  color:#ffffff;
+}
+
+.full-width{
+  width:100%;
+  margin-top:12px;
+}
+
+/* RIGHT PREVIEW */
 
 .frame{
-width:405px;
-height:720px;
-background:#00ff00;
-display:flex;
-flex-direction:column;
-align-items:center;
-padding:15px;
-box-sizing:border-box;
-position:relative;
+  position:relative;
+  width:var(--frame-width);
+  height:var(--frame-height);
+  border-radius:28px;
+  overflow:hidden;
+  background:
+    linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)),
+    linear-gradient(135deg, var(--bg1), var(--bg2));
+  box-shadow:0 18px 55px rgba(0,0,0,.45);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px 18px 18px;
 }
 
-/* COUNTER */
+.frame.image-bg{
+  background:
+    linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)),
+    var(--image-bg) center/cover no-repeat;
+}
 
 .counter{
-font-size:55px;
-font-weight:bold;
-color:#2ecc71;
--webkit-text-stroke:3px white;
-margin-bottom:10px;
+  font-size:64px;
+  font-weight:900;
+  line-height:1;
+  color:var(--counter-color);
+  -webkit-text-stroke:4px var(--counter-outline);
+  paint-order:stroke fill;
+  text-shadow:0 4px 10px rgba(0,0,0,.18);
+  margin-top:2px;
+  margin-bottom:14px;
+  user-select:none;
 }
-
-/* QUESTION */
 
 .question{
-background:white;
-padding:12px 25px;
-border-radius:30px;
-font-size:20px;
-font-weight:bold;
-color:#2e7d32;
-margin-bottom:15px;
-text-align:center;
+  width:100%;
+  max-width:calc(var(--flag-width) + 34px);
+  min-height:84px;
+  background:var(--question-bg);
+  color:var(--question-color);
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:14px 26px;
+  font-size:22px;
+  font-weight:900;
+  line-height:1.1;
+  text-transform:uppercase;
+  margin-bottom:20px;
+  box-shadow:0 6px 18px rgba(0,0,0,.14);
 }
 
-/* FLAG */
-
 .flagbox{
-width:320px;
-height:190px;
-background:white;
-border-radius:15px;
-display:flex;
-align-items:center;
-justify-content:center;
-box-shadow:0 5px 10px rgba(0,0,0,0.3);
-margin-bottom:15px;
+  width:var(--flag-width);
+  height:var(--flag-height);
+  background:#e7e7e7;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+  box-shadow:0 6px 18px rgba(0,0,0,.22);
+  margin-bottom:20px;
+}
+
+.flag-inner{
+  width:100%;
+  height:100%;
+  background:#ffffff;
+  border-radius:6px;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
 .flagbox img{
-width:100%;
-height:100%;
-object-fit:contain;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+  background:#ffffff;
 }
 
-/* ANSWERS */
-
 .answers{
-width:100%;
-display:flex;
-flex-direction:column;
-gap:10px;
+  width:var(--flag-width);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
 .answer{
-font-size:28px;
-font-weight:bold;
-color:#ffd54f;
-text-shadow:2px 2px 0 #000;
-white-space:nowrap;
-overflow:hidden;
-text-overflow:ellipsis;
+  font-size:34px;
+  font-weight:900;
+  color:#f1d45e;
+  -webkit-text-stroke:2px #222222;
+  paint-order:stroke fill;
+  line-height:1.02;
+  text-transform:uppercase;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  user-select:none;
 }
 
-.correct{
-color:#2ecc71;
+.answer.correct{
+  color:#18b654;
 }
-
-/* TIMER */
 
 .timer{
-position:absolute;
-top:15px;
-right:15px;
-width:60px;
-height:60px;
-border-radius:50%;
-border:5px solid white;
-display:flex;
-justify-content:center;
-align-items:center;
-font-weight:bold;
-font-size:18px;
-background:rgba(0,0,0,0.4);
-color:white;
+  position:absolute;
+  top:16px;
+  right:16px;
+  width:68px;
+  height:68px;
+  border-radius:50%;
+  border:6px solid #ffffff;
+  background:rgba(0,0,0,.22);
+  color:#ffffff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  font-weight:900;
+  box-shadow:0 5px 14px rgba(0,0,0,.18);
 }
 
-/* CONTROLS */
-
-.controls{
-position:fixed;
-left:10px;
-top:10px;
-background:#111;
-padding:15px;
-border-radius:10px;
-color:white;
-font-size:14px;
-width:220px;
+.timer.hidden{
+  display:none;
 }
 
-.controls input{
-width:100%;
-margin-bottom:5px;
+@media (max-width: 1150px){
+  body{
+    align-items:flex-start;
+  }
+  .container{
+    flex-direction:column;
+    align-items:center;
+  }
+  .controls{
+    width:min(100%, 720px);
+  }
 }
-
-.controls button{
-margin-top:5px;
-width:100%;
-}
-
 </style>
 </head>
-
 <body>
 
-<div class="frame">
+<div class="container">
 
-<div class="timer" id="timer">5</div>
+  <div class="controls">
+    <h2>Flag quiz preview</h2>
+    <p>This keeps the original working layout, but adds the extra controls you asked for.</p>
 
-<div class="counter" id="counter">1/30</div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="layoutSelect">Layout</label>
+        <select id="layoutSelect">
+          <option value="vertical">Vertical 9:16</option>
+          <option value="landscape">Landscape 16:9</option>
+        </select>
+      </div>
 
-<div contenteditable="true" class="question" id="question">
-WHICH COUNTRY FLAG IS THAT?
-</div>
+      <div class="field">
+        <label for="backgroundMode">Background</label>
+        <select id="backgroundMode">
+          <option value="green">Green screen</option>
+          <option value="gradient">Gradient</option>
+          <option value="image">Image URL</option>
+        </select>
+      </div>
+    </div>
 
-<div class="flagbox">
-<img id="flag">
-</div>
+    <div class="field">
+      <label for="questionInput">Question text</label>
+      <input type="text" id="questionInput" value="WHICH COUNTRY FLAG IS THAT?">
+    </div>
 
-<div class="answers">
-<div class="answer" id="a"></div>
-<div class="answer" id="b"></div>
-<div class="answer" id="c"></div>
-</div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="counterTextInput">Counter text</label>
+        <input type="text" id="counterTextInput" value="1/30">
+      </div>
+      <div class="field">
+        <label for="timerSeconds">Timer seconds</label>
+        <input type="number" id="timerSeconds" min="1" value="5">
+      </div>
+    </div>
 
-</div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="counterColor">Counter color</label>
+        <input type="color" id="counterColor" value="#2ecc71">
+      </div>
+      <div class="field">
+        <label for="counterOutline">Counter outline</label>
+        <input type="color" id="counterOutline" value="#ffffff">
+      </div>
+    </div>
 
-<div class="controls">
+    <div class="grid-2">
+      <div class="field">
+        <label for="questionBg">Question box color</label>
+        <input type="color" id="questionBg" value="#ffffff">
+      </div>
+      <div class="field">
+        <label for="questionColor">Question text color</label>
+        <input type="color" id="questionColor" value="#2e7d32">
+      </div>
+    </div>
 
-Counter Text
-<input id="counterInput" value="1/30">
+    <div class="grid-2">
+      <div class="field">
+        <label for="bg1">Color 1</label>
+        <input type="color" id="bg1" value="#00ff00">
+      </div>
+      <div class="field">
+        <label for="bg2">Color 2</label>
+        <input type="color" id="bg2" value="#00ff00">
+      </div>
+    </div>
 
-Counter Color
-<input id="counterColor" value="#2ecc71">
+    <div class="field">
+      <label for="imageUrl">Image URL</label>
+      <input type="text" id="imageUrl" placeholder="https://...">
+    </div>
 
-Counter Outline
-<input id="counterOutline" value="#ffffff">
+    <div class="toggle">
+      <span>Hide timer</span>
+      <input type="checkbox" id="hideTimer">
+    </div>
 
-Question Box Color
-<input id="questionBg" value="#ffffff">
+    <div class="actions">
+      <button id="spinBtn">Spin</button>
+      <button id="revealBtn" class="secondary">Reveal</button>
+    </div>
 
-Question Text Color
-<input id="questionColor" value="#2e7d32">
+    <button id="autoBtn" class="full-btn primary full-width">Start Auto 30</button>
+    <button id="stopAutoBtn" class="full-btn secondary full-width">Stop Auto</button>
+  </div>
 
-Timer Seconds
-<input id="timerSeconds" value="5">
+  <div class="frame" id="frame">
+    <div class="timer" id="timer">5</div>
+    <div class="counter" id="counter">1/30</div>
 
-<label><input type="checkbox" id="hideTimer"> Hide timer</label>
+    <div class="question" id="questionBox">
+      <span id="questionText">WHICH COUNTRY FLAG IS THAT?</span>
+    </div>
 
-<button onclick="spin()">Spin</button>
-<button onclick="reveal()">Reveal</button>
-<button onclick="startAuto()">Auto 30</button>
+    <div class="flagbox">
+      <div class="flag-inner">
+        <img id="flag" alt="Flag">
+      </div>
+    </div>
+
+    <div class="answers">
+      <div class="answer" id="a"></div>
+      <div class="answer" id="b"></div>
+      <div class="answer" id="c"></div>
+    </div>
+  </div>
 
 </div>
 
 <script>
+let countries = [];
+let questionPool = [];
+let currentQuestion = null;
+let currentOptions = [];
+let currentRound = 1;
+let autoRunning = false;
+let flickerInterval = null;
+let countdownInterval = null;
+let autoNextTimeout = null;
+let isSpinning = false;
 
-let countries=[]
-let current
-let used=[]
-let round=1
-let auto=false
-let timerInt
+const frame = document.getElementById("frame");
+const flagImg = document.getElementById("flag");
+const counterEl = document.getElementById("counter");
+const questionTextEl = document.getElementById("questionText");
+const questionBoxEl = document.getElementById("questionBox");
+const timerEl = document.getElementById("timer");
+const answerEls = [
+  document.getElementById("a"),
+  document.getElementById("b"),
+  document.getElementById("c")
+];
 
-async function load(){
+const layoutSelect = document.getElementById("layoutSelect");
+const backgroundMode = document.getElementById("backgroundMode");
+const questionInput = document.getElementById("questionInput");
+const counterTextInput = document.getElementById("counterTextInput");
+const timerSecondsInput = document.getElementById("timerSeconds");
+const counterColorInput = document.getElementById("counterColor");
+const counterOutlineInput = document.getElementById("counterOutline");
+const questionBgInput = document.getElementById("questionBg");
+const questionColorInput = document.getElementById("questionColor");
+const bg1Input = document.getElementById("bg1");
+const bg2Input = document.getElementById("bg2");
+const imageUrlInput = document.getElementById("imageUrl");
+const hideTimerInput = document.getElementById("hideTimer");
 
-let res=await fetch("https://restcountries.com/v3.1/all")
-countries=await res.json()
+const spinBtn = document.getElementById("spinBtn");
+const revealBtn = document.getElementById("revealBtn");
+const autoBtn = document.getElementById("autoBtn");
+const stopAutoBtn = document.getElementById("stopAutoBtn");
 
-spin()
-
+function shuffle(array){
+  const arr = [...array];
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
 
-/* PREVENT REPEAT FLAGS */
-
-function randomCountry(){
-
-if(used.length>=countries.length){
-used=[]
+function buildQuestionPool(){
+  questionPool = shuffle([...countries]);
 }
 
-let c
-
-while(true){
-
-c=countries[Math.floor(Math.random()*countries.length)]
-
-if(!used.includes(c.cca2)){
-used.push(c.cca2)
-break
+function getNextQuestionCountry(){
+  if(questionPool.length === 0){
+    buildQuestionPool();
+  }
+  return questionPool.pop();
 }
 
+function pickDistractors(correct){
+  const distractors = [];
+  const used = new Set([correct.cca2]);
+
+  while(distractors.length < 2){
+    const candidate = countries[Math.floor(Math.random() * countries.length)];
+    if(!used.has(candidate.cca2)){
+      used.add(candidate.cca2);
+      distractors.push(candidate);
+    }
+  }
+
+  return distractors;
 }
 
-return c
+function renderOptions(options, correctCode){
+  const letters = ["A", "B", "C"];
 
+  answerEls.forEach((el, index) => {
+    el.classList.remove("correct");
+    el.textContent = `${letters[index]}) ${options[index].name.common.toUpperCase()}`;
+    if(options[index].cca2 === correctCode){
+      el.dataset.correct = "true";
+    } else {
+      el.dataset.correct = "false";
+    }
+  });
 }
 
-/* SPIN EFFECT */
-
-function spin(){
-
-let spins=0
-
-let interval=setInterval(()=>{
-
-let c=randomCountry()
-
-flag.src=c.flags.png
-
-spins++
-
-if(spins>25){
-
-clearInterval(interval)
-current=c
-setAnswers(c)
-
+function revealAnswer(){
+  answerEls.forEach(el => {
+    if(el.dataset.correct === "true"){
+      el.classList.add("correct");
+    } else {
+      el.classList.remove("correct");
+    }
+  });
 }
 
-},80)
-
+function clearReveal(){
+  answerEls.forEach(el => el.classList.remove("correct"));
 }
 
-/* ANSWERS */
-
-function setAnswers(correct){
-
-let options=[correct]
-
-while(options.length<3){
-
-let r=randomCountry()
-
-if(!options.includes(r)) options.push(r)
-
+function setQuestionCounterText(){
+  if(autoRunning){
+    counterEl.textContent = `${currentRound}/30`;
+  } else {
+    counterEl.textContent = counterTextInput.value.trim() || "1/30";
+  }
 }
 
-options.sort(()=>Math.random()-0.5)
+function applyLayout(){
+  const isVertical = layoutSelect.value === "vertical";
 
-a.innerText="A) "+options[0].name.common
-b.innerText="B) "+options[1].name.common
-c.innerText="C) "+options[2].name.common
-
-window.correct=options.indexOf(correct)
-
+  if(isVertical){
+    document.documentElement.style.setProperty("--frame-width", "405px");
+    document.documentElement.style.setProperty("--frame-height", "720px");
+    document.documentElement.style.setProperty("--flag-width", "320px");
+    document.documentElement.style.setProperty("--flag-height", "190px");
+    counterEl.style.fontSize = "64px";
+    questionBoxEl.style.fontSize = "22px";
+    answerEls.forEach(el => el.style.fontSize = "34px");
+  } else {
+    document.documentElement.style.setProperty("--frame-width", "960px");
+    document.documentElement.style.setProperty("--frame-height", "540px");
+    document.documentElement.style.setProperty("--flag-width", "360px");
+    document.documentElement.style.setProperty("--flag-height", "210px");
+    counterEl.style.fontSize = "72px";
+    questionBoxEl.style.fontSize = "28px";
+    answerEls.forEach(el => el.style.fontSize = "38px");
+  }
 }
 
-/* REVEAL */
+function applyStyles(){
+  document.documentElement.style.setProperty("--counter-color", counterColorInput.value);
+  document.documentElement.style.setProperty("--counter-outline", counterOutlineInput.value);
+  document.documentElement.style.setProperty("--question-bg", questionBgInput.value);
+  document.documentElement.style.setProperty("--question-color", questionColorInput.value);
 
-function reveal(){
+  questionTextEl.textContent = questionInput.value.trim() || "WHICH COUNTRY FLAG IS THAT?";
 
-document.querySelectorAll(".answer")[correct].classList.add("correct")
+  frame.classList.remove("image-bg");
 
+  if(backgroundMode.value === "green"){
+    document.documentElement.style.setProperty("--bg1", "#00ff00");
+    document.documentElement.style.setProperty("--bg2", "#00ff00");
+  } else if(backgroundMode.value === "gradient"){
+    document.documentElement.style.setProperty("--bg1", bg1Input.value);
+    document.documentElement.style.setProperty("--bg2", bg2Input.value);
+  } else if(backgroundMode.value === "image" && imageUrlInput.value.trim()){
+    frame.classList.add("image-bg");
+    frame.style.setProperty("--image-bg", `url('${imageUrlInput.value.trim()}')`);
+  } else {
+    document.documentElement.style.setProperty("--bg1", bg1Input.value);
+    document.documentElement.style.setProperty("--bg2", bg2Input.value);
+  }
+
+  setQuestionCounterText();
 }
 
-/* SETTINGS */
-
-setInterval(()=>{
-
-counter.innerText=counterInput.value
-counter.style.color=counterColor.value
-counter.style.webkitTextStroke=`3px ${counterOutline.value}`
-
-question.style.background=questionBg.value
-question.style.color=questionColor.value
-
-},200)
-
-/* TIMER */
-
-function startTimer(){
-
-let seconds=parseInt(timerSeconds.value)
-
-if(hideTimer.checked){
-timer.style.display="none"
-return
-}else{
-timer.style.display="flex"
+function stopAllTimers(){
+  clearInterval(flickerInterval);
+  clearInterval(countdownInterval);
+  clearTimeout(autoNextTimeout);
 }
 
-timer.innerText=seconds
-
-clearInterval(timerInt)
-
-timerInt=setInterval(()=>{
-
-seconds--
-timer.innerText=seconds
-
-if(seconds<=0){
-clearInterval(timerInt)
-nextRound()
+function setTimerVisible(){
+  if(hideTimerInput.checked){
+    timerEl.classList.add("hidden");
+  } else {
+    timerEl.classList.remove("hidden");
+  }
 }
 
-},1000)
+function startCountdown(onDone){
+  setTimerVisible();
+  if(hideTimerInput.checked){
+    onDone();
+    return;
+  }
 
+  let seconds = Math.max(1, parseInt(timerSecondsInput.value, 10) || 5);
+  timerEl.textContent = seconds;
+
+  clearInterval(countdownInterval);
+  countdownInterval = setInterval(() => {
+    seconds -= 1;
+    timerEl.textContent = Math.max(seconds, 0);
+    if(seconds <= 0){
+      clearInterval(countdownInterval);
+      onDone();
+    }
+  }, 1000);
 }
 
-/* AUTO MODE */
-
-function startAuto(){
-
-auto=true
-round=1
-nextRound()
-
+function buildQuestion(){
+  currentQuestion = getNextQuestionCountry();
+  const options = [currentQuestion, ...pickDistractors(currentQuestion)];
+  currentOptions = shuffle(options);
+  renderOptions(currentOptions, currentQuestion.cca2);
 }
 
-function nextRound(){
+function spinQuestion(afterSpin){
+  if(isSpinning || countries.length === 0) return;
 
-counter.innerText=`${round}/30`
+  stopAllTimers();
+  clearReveal();
+  isSpinning = true;
 
-spin()
+  let ticks = 0;
+  const totalTicks = 24;
 
-startTimer()
+  flickerInterval = setInterval(() => {
+    const flickerCountry = countries[Math.floor(Math.random() * countries.length)];
+    flagImg.src = flickerCountry.flags?.png || flickerCountry.flags?.svg || "";
+    ticks += 1;
 
-round++
-
-if(round>30){
-auto=false
+    if(ticks >= totalTicks){
+      clearInterval(flickerInterval);
+      buildQuestion();
+      flagImg.src = currentQuestion.flags?.png || currentQuestion.flags?.svg || "";
+      isSpinning = false;
+      if(typeof afterSpin === "function"){
+        afterSpin();
+      }
+    }
+  }, 80);
 }
 
+function manualSpin(){
+  autoRunning = false;
+  stopAllTimers();
+  setQuestionCounterText();
+  spinQuestion();
 }
 
-load()
+function runAutoRound(){
+  if(!autoRunning) return;
 
+  setQuestionCounterText();
+
+  spinQuestion(() => {
+    startCountdown(() => {
+      revealAnswer();
+
+      autoNextTimeout = setTimeout(() => {
+        currentRound += 1;
+        if(currentRound <= 30 && autoRunning){
+          runAutoRound();
+        } else {
+          autoRunning = false;
+          currentRound = 1;
+          setQuestionCounterText();
+        }
+      }, 1200);
+    });
+  });
+}
+
+function startAuto30(){
+  stopAllTimers();
+  autoRunning = true;
+  currentRound = 1;
+  runAutoRound();
+}
+
+function stopAuto(){
+  autoRunning = false;
+  currentRound = 1;
+  stopAllTimers();
+  setQuestionCounterText();
+}
+
+async function loadCountries(){
+  try{
+    const res = await fetch("https://restcountries.com/v3.1/all");
+    const data = await res.json();
+
+    countries = data
+      .filter(c =>
+        c &&
+        c.name &&
+        c.name.common &&
+        c.flags &&
+        (c.flags.png || c.flags.svg) &&
+        c.cca2
+      )
+      .map(c => ({
+        name: { common: c.name.common },
+        flags: {
+          png: c.flags.png || c.flags.svg,
+          svg: c.flags.svg || c.flags.png
+        },
+        cca2: c.cca2
+      }));
+
+    buildQuestionPool();
+    manualSpin();
+  } catch (err){
+    console.error("Failed to load countries:", err);
+    questionTextEl.textContent = "FAILED TO LOAD FLAGS";
+  }
+}
+
+/* EVENTS */
+[
+  layoutSelect,
+  backgroundMode,
+  questionInput,
+  counterTextInput,
+  counterColorInput,
+  counterOutlineInput,
+  questionBgInput,
+  questionColorInput,
+  bg1Input,
+  bg2Input,
+  imageUrlInput,
+  hideTimerInput
+].forEach(el => el.addEventListener("input", applyStyles));
+
+layoutSelect.addEventListener("change", applyLayout);
+backgroundMode.addEventListener("change", applyStyles);
+
+spinBtn.addEventListener("click", manualSpin);
+revealBtn.addEventListener("click", revealAnswer);
+autoBtn.addEventListener("click", startAuto30);
+stopAutoBtn.addEventListener("click", stopAuto);
+
+/* INIT */
+applyLayout();
+applyStyles();
+loadCountries();
 </script>
 
 </body>
