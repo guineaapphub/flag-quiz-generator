@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Flag Quiz Generator 1.1</title>
+<title>Flag Quiz Generator</title>
 
 <style>
 
@@ -25,6 +25,7 @@ background:#00ff00;
 display:flex;
 flex-direction:column;
 align-items:center;
+justify-content:flex-start;
 padding:15px;
 box-sizing:border-box;
 position:relative;
@@ -33,11 +34,34 @@ position:relative;
 /* COUNTER */
 
 .counter{
-font-size:60px;
+font-size:56px;
 font-weight:bold;
-color:#2ecc71;
--webkit-text-stroke:3px white;
+color:#2e7d32;
+text-shadow:0 3px 0 white;
 margin-bottom:10px;
+}
+
+/* TIMER */
+
+.timer{
+position:absolute;
+top:15px;
+right:15px;
+width:60px;
+height:60px;
+border-radius:50%;
+border:5px solid white;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:22px;
+font-weight:bold;
+color:white;
+background:rgba(0,0,0,0.4);
+}
+
+.timer.hide{
+display:none;
 }
 
 /* QUESTION */
@@ -79,7 +103,7 @@ object-fit:contain;
 width:100%;
 display:flex;
 flex-direction:column;
-gap:10px;
+gap:8px;
 }
 
 .answer{
@@ -96,29 +120,6 @@ text-overflow:ellipsis;
 color:#2ecc71;
 }
 
-/* TIMER */
-
-.timer{
-position:absolute;
-top:15px;
-right:15px;
-width:60px;
-height:60px;
-border-radius:50%;
-border:5px solid white;
-display:flex;
-justify-content:center;
-align-items:center;
-font-weight:bold;
-font-size:20px;
-background:rgba(0,0,0,0.4);
-color:white;
-}
-
-.timer.hidden{
-display:none;
-}
-
 /* CONTROLS */
 
 .controls{
@@ -130,16 +131,19 @@ padding:15px;
 border-radius:10px;
 color:white;
 font-size:14px;
-width:220px;
+width:200px;
 }
 
-.controls input{
-width:100%;
-margin-bottom:5px;
+.controls.hide{
+display:none;
 }
 
 .controls button{
 margin-top:5px;
+width:100%;
+}
+
+.controls input{
 width:100%;
 }
 
@@ -152,9 +156,11 @@ width:100%;
 
 <div class="timer" id="timer">5</div>
 
-<div class="counter" id="counter">1/30</div>
+<div contenteditable="true" id="counter" class="counter">
+1 / 30
+</div>
 
-<div contenteditable="true" class="question" id="question">
+<div contenteditable="true" class="question">
 WHICH COUNTRY FLAG IS THAT?
 </div>
 
@@ -170,31 +176,31 @@ WHICH COUNTRY FLAG IS THAT?
 
 </div>
 
-<div class="controls">
-
-Counter Text
-<input id="counterInput" value="1/30">
-
-Counter Color
-<input id="counterColor" value="#2ecc71">
-
-Counter Outline
-<input id="counterOutline" value="#ffffff">
-
-Question Box Color
-<input id="questionBg" value="#ffffff">
-
-Question Text Color
-<input id="questionColor" value="#2e7d32">
-
-Timer Seconds
-<input id="timerSeconds" value="5">
-
-<label><input type="checkbox" id="hideTimer"> Hide timer</label>
+<div class="controls" id="controls">
 
 <button onclick="spin()">Spin</button>
 <button onclick="reveal()">Reveal</button>
-<button onclick="startAuto()">Auto 30</button>
+
+<br>
+
+Timer Seconds
+<input id="timerInput" value="5">
+
+<label>
+<input type="checkbox" onclick="toggleTimer()">
+Hide Timer
+</label>
+
+<br>
+
+Background
+
+<button onclick="greenscreen()">Green</button>
+<button onclick="bgimg()">Image</button>
+
+<br>
+
+<button onclick="toggleUI()">Hide UI (record)</button>
 
 </div>
 
@@ -203,9 +209,7 @@ Timer Seconds
 let countries=[]
 let current
 let used=[]
-let round=1
-let auto=false
-let timerInt
+let timerInterval
 
 async function load(){
 
@@ -216,13 +220,7 @@ spin()
 
 }
 
-/* PREVENT REPEAT FLAGS */
-
 function randomCountry(){
-
-if(used.length>=countries.length){
-used=[]
-}
 
 let c
 
@@ -241,9 +239,13 @@ return c
 
 }
 
-/* SPIN EFFECT */
-
 function spin(){
+
+document.querySelectorAll(".answer").forEach(a=>{
+a.classList.remove("correct")
+})
+
+startTimer()
 
 let spins=0
 
@@ -267,8 +269,6 @@ setAnswers(c)
 
 }
 
-/* ANSWERS */
-
 function setAnswers(correct){
 
 let options=[correct]
@@ -291,81 +291,59 @@ window.correct=options.indexOf(correct)
 
 }
 
-/* REVEAL */
-
 function reveal(){
 
 document.querySelectorAll(".answer")[correct].classList.add("correct")
 
 }
 
-/* SETTINGS */
-
-setInterval(()=>{
-
-counter.innerText=counterInput.value
-counter.style.color=counterColor.value
-counter.style.webkitTextStroke=`3px ${counterOutline.value}`
-
-question.style.background=questionBg.value
-question.style.color=questionColor.value
-
-},200)
-
-/* TIMER */
-
 function startTimer(){
 
-let seconds=parseInt(timerSeconds.value)
+let time=parseInt(document.getElementById("timerInput").value)
 
-if(hideTimer.checked){
-timer.classList.add("hidden")
-return
-}else{
-timer.classList.remove("hidden")
-}
+let timer=document.getElementById("timer")
 
-timer.innerText=seconds
+timer.innerText=time
 
-clearInterval(timerInt)
+clearInterval(timerInterval)
 
-timerInt=setInterval(()=>{
+timerInterval=setInterval(()=>{
 
-seconds--
-timer.innerText=seconds
+time--
 
-if(seconds<=0){
-clearInterval(timerInt)
-nextRound()
+timer.innerText=time
+
+if(time<=0){
+clearInterval(timerInterval)
 }
 
 },1000)
 
 }
 
-/* AUTO MODE */
+function toggleTimer(){
 
-function startAuto(){
-
-auto=true
-round=1
-nextRound()
+document.getElementById("timer").classList.toggle("hide")
 
 }
 
-function nextRound(){
+function toggleUI(){
 
-counter.innerText=`${round}/30`
+document.getElementById("controls").classList.toggle("hide")
 
-spin()
-
-startTimer()
-
-round++
-
-if(round>30){
-auto=false
 }
+
+function greenscreen(){
+
+document.body.style.background="#00ff00"
+
+}
+
+function bgimg(){
+
+let url=prompt("Image URL")
+
+document.body.style.background=`url(${url}) center/cover`
 
 }
 
