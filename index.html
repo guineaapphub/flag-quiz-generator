@@ -25,7 +25,6 @@ background:#00ff00;
 display:flex;
 flex-direction:column;
 align-items:center;
-justify-content:flex-start;
 padding:15px;
 box-sizing:border-box;
 position:relative;
@@ -60,10 +59,6 @@ color:white;
 background:rgba(0,0,0,0.4);
 }
 
-.timer.hide{
-display:none;
-}
-
 /* QUESTION */
 
 .question{
@@ -74,7 +69,6 @@ font-size:20px;
 font-weight:bold;
 color:#2e7d32;
 margin-bottom:15px;
-text-align:center;
 }
 
 /* FLAG */
@@ -134,16 +128,8 @@ font-size:14px;
 width:200px;
 }
 
-.controls.hide{
-display:none;
-}
-
 .controls button{
 margin-top:5px;
-width:100%;
-}
-
-.controls input{
 width:100%;
 }
 
@@ -156,7 +142,7 @@ width:100%;
 
 <div class="timer" id="timer">5</div>
 
-<div contenteditable="true" id="counter" class="counter">
+<div contenteditable="true" class="counter">
 1 / 30
 </div>
 
@@ -176,68 +162,51 @@ WHICH COUNTRY FLAG IS THAT?
 
 </div>
 
-<div class="controls" id="controls">
+<div class="controls">
 
 <button onclick="spin()">Spin</button>
 <button onclick="reveal()">Reveal</button>
 
-<br>
-
 Timer Seconds
-<input id="timerInput" value="5">
+<input id="timerSeconds" value="5">
 
-<label>
-<input type="checkbox" onclick="toggleTimer()">
-Hide Timer
-</label>
-
-<br>
+<br><br>
 
 Background
 
 <button onclick="greenscreen()">Green</button>
 <button onclick="bgimg()">Image</button>
 
-<br>
-
-<button onclick="toggleUI()">Hide UI (record)</button>
-
 </div>
 
 <script>
 
-let countries=[]
+/* FLAG DATA */
+
+let countries=[
+{name:"Canada",flag:"https://flagcdn.com/w320/ca.png"},
+{name:"United Kingdom",flag:"https://flagcdn.com/w320/gb.png"},
+{name:"Germany",flag:"https://flagcdn.com/w320/de.png"},
+{name:"France",flag:"https://flagcdn.com/w320/fr.png"},
+{name:"Japan",flag:"https://flagcdn.com/w320/jp.png"},
+{name:"Brazil",flag:"https://flagcdn.com/w320/br.png"},
+{name:"Italy",flag:"https://flagcdn.com/w320/it.png"},
+{name:"Spain",flag:"https://flagcdn.com/w320/es.png"},
+{name:"Mexico",flag:"https://flagcdn.com/w320/mx.png"},
+{name:"Australia",flag:"https://flagcdn.com/w320/au.png"},
+{name:"India",flag:"https://flagcdn.com/w320/in.png"},
+{name:"China",flag:"https://flagcdn.com/w320/cn.png"},
+{name:"South Korea",flag:"https://flagcdn.com/w320/kr.png"},
+{name:"Argentina",flag:"https://flagcdn.com/w320/ar.png"},
+{name:"Netherlands",flag:"https://flagcdn.com/w320/nl.png"},
+{name:"Sweden",flag:"https://flagcdn.com/w320/se.png"},
+{name:"Norway",flag:"https://flagcdn.com/w320/no.png"},
+{name:"Denmark",flag:"https://flagcdn.com/w320/dk.png"},
+{name:"Poland",flag:"https://flagcdn.com/w320/pl.png"},
+{name:"Portugal",flag:"https://flagcdn.com/w320/pt.png"}
+]
+
 let current
-let used=[]
-let timerInterval
-
-async function load(){
-
-let res=await fetch("https://restcountries.com/v3.1/all")
-countries=await res.json()
-
-spin()
-
-}
-
-function randomCountry(){
-
-let c
-
-while(true){
-
-c=countries[Math.floor(Math.random()*countries.length)]
-
-if(!used.includes(c.cca2)){
-used.push(c.cca2)
-break
-}
-
-}
-
-return c
-
-}
 
 function spin(){
 
@@ -251,9 +220,9 @@ let spins=0
 
 let interval=setInterval(()=>{
 
-let c=randomCountry()
+let c=countries[Math.floor(Math.random()*countries.length)]
 
-document.getElementById("flag").src=c.flags.png
+document.getElementById("flag").src=c.flag
 
 spins++
 
@@ -283,9 +252,9 @@ if(!options.includes(r)) options.push(r)
 
 options.sort(()=>Math.random()-0.5)
 
-document.getElementById("a").innerText="A) "+options[0].name.common
-document.getElementById("b").innerText="B) "+options[1].name.common
-document.getElementById("c").innerText="C) "+options[2].name.common
+document.getElementById("a").innerText="A) "+options[0].name
+document.getElementById("b").innerText="B) "+options[1].name
+document.getElementById("c").innerText="C) "+options[2].name
 
 window.correct=options.indexOf(correct)
 
@@ -299,37 +268,22 @@ document.querySelectorAll(".answer")[correct].classList.add("correct")
 
 function startTimer(){
 
-let time=parseInt(document.getElementById("timerInput").value)
+let time=parseInt(document.getElementById("timerSeconds").value)
 
 let timer=document.getElementById("timer")
 
 timer.innerText=time
 
-clearInterval(timerInterval)
-
-timerInterval=setInterval(()=>{
+let t=setInterval(()=>{
 
 time--
-
 timer.innerText=time
 
 if(time<=0){
-clearInterval(timerInterval)
+clearInterval(t)
 }
 
 },1000)
-
-}
-
-function toggleTimer(){
-
-document.getElementById("timer").classList.toggle("hide")
-
-}
-
-function toggleUI(){
-
-document.getElementById("controls").classList.toggle("hide")
 
 }
 
@@ -347,7 +301,7 @@ document.body.style.background=`url(${url}) center/cover`
 
 }
 
-load()
+spin()
 
 </script>
 
