@@ -1,491 +1,457 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flag Quiz Preview</title>
-  <style>
-    :root {
-      --frame-width: 405px;
-      --frame-height: 720px;
-      --panel-width: 320px;
-      --accent: #1f9d55;
-      --yellow: #f4d35e;
-      --bg1: #00ff00;
-      --bg2: #00ff00;
-      --overlay-opacity: 0;
-      --question-text: "WHICH COUNTRY FLAG IS THAT?";
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flag Quiz Generator 1.1</title>
 
-    * { box-sizing: border-box; }
+<style>
 
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #101318;
-      color: white;
-      gap: 24px;
-      padding: 24px;
-      overflow: auto;
-    }
+:root{
+--frame-width:405px;
+--frame-height:720px;
+--flag-width:320px;
+--counter-color:#2ecc71;
+--counter-outline:#ffffff;
+--question-bg:#ffffff;
+--question-color:#2e7d32;
+--bg:#00ff00;
+}
 
-    .controls {
-      width: 360px;
-      background: #111827;
-      border: 1px solid #293042;
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.3);
-    }
+body{
+margin:0;
+font-family:Arial,Helvetica,sans-serif;
+background:#111;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
 
-    .controls h2 {
-      margin: 0 0 14px;
-      font-size: 22px;
-    }
+.container{
+display:flex;
+gap:20px;
+}
 
-    .controls p {
-      margin: 0 0 18px;
-      color: #b9c2d0;
-      line-height: 1.35;
-    }
+/* CONTROL PANEL */
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
+.controls{
+width:330px;
+background:#0f172a;
+color:white;
+padding:20px;
+border-radius:14px;
+font-size:14px;
+}
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 12px;
-    }
+.controls input,
+.controls select{
+width:100%;
+padding:8px;
+margin-bottom:10px;
+border-radius:6px;
+border:none;
+}
 
-    .field label {
-      font-size: 13px;
-      color: #d4d8df;
-    }
+.controls button{
+width:100%;
+padding:10px;
+margin-top:6px;
+border:none;
+border-radius:6px;
+background:#22c55e;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
 
-    input[type="text"], select {
-      width: 100%;
-      padding: 12px 13px;
-      border-radius: 12px;
-      border: 1px solid #374151;
-      background: #1f2937;
-      color: white;
-      outline: none;
-    }
+/* VIDEO FRAME */
 
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-top: 1px solid #232b38;
-    }
+.frame{
+width:var(--frame-width);
+height:var(--frame-height);
+background:var(--bg);
+border-radius:20px;
+position:relative;
+overflow:hidden;
+display:flex;
+flex-direction:column;
+align-items:center;
+padding-top:20px;
+}
 
-    .toggle-row:first-of-type { border-top: 0; }
+/* COUNTER */
 
-    button {
-      appearance: none;
-      border: 0;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-weight: 700;
-      cursor: pointer;
-      background: var(--accent);
-      color: white;
-    }
+.counter{
+font-size:60px;
+font-weight:900;
+color:var(--counter-color);
+-webkit-text-stroke:4px var(--counter-outline);
+}
 
-    button.secondary {
-      background: #253041;
-    }
+/* QUESTION */
 
-    .actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 12px;
-    }
+.question{
+background:var(--question-bg);
+color:var(--question-color);
+font-weight:900;
+padding:14px 25px;
+border-radius:40px;
+margin:10px 0;
+text-transform:uppercase;
+text-align:center;
+max-width:90%;
+}
 
-    .preview-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: max-content;
-    }
+/* FLAG */
 
-    .frame {
-      position: relative;
-      width: var(--frame-width);
-      height: var(--frame-height);
-      border-radius: 28px;
-      overflow: hidden;
-      background:
-        linear-gradient(rgba(0,0,0,var(--overlay-opacity)), rgba(0,0,0,var(--overlay-opacity))),
-        linear-gradient(135deg, var(--bg1), var(--bg2));
-      box-shadow: 0 18px 50px rgba(0,0,0,.45);
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding-top: 28px;
-    }
+.flagbox{
+width:var(--flag-width);
+height:180px;
+background:white;
+border-radius:10px;
+padding:10px;
+display:flex;
+justify-content:center;
+align-items:center;
+box-shadow:0 8px 20px rgba(0,0,0,.3);
+}
 
-    .frame.image-bg {
-      background:
-        linear-gradient(rgba(0,0,0,var(--overlay-opacity)), rgba(0,0,0,var(--overlay-opacity))),
-        var(--image-bg, linear-gradient(135deg, var(--bg1), var(--bg2)));
-      background-size: cover;
-      background-position: center;
-    }
+.flagbox img{
+width:100%;
+height:100%;
+object-fit:contain;
+}
 
-    .stack {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      padding: 0 24px 20px;
-    }
+/* ANSWERS */
 
-    .counter {
-      font-size: 64px;
-      line-height: 1;
-      font-weight: 900;
-      color: #1ca34a;
-      letter-spacing: 1px;
-      -webkit-text-stroke: 4px rgba(255,255,255,.9);
-      paint-order: stroke fill;
-      text-shadow: 0 4px 10px rgba(0,0,0,.28);
-      user-select: none;
-    }
+.answers{
+margin-top:10px;
+font-size:30px;
+font-weight:900;
+color:#ffd54f;
+-webkit-text-stroke:2px black;
+text-align:left;
+white-space:nowrap;
+overflow:hidden;
+}
 
-    .question-pill {
-      width: 100%;
-      max-width: 100%;
-      min-height: 76px;
-      border-radius: 999px;
-      background: white;
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 12px 26px;
-      font-weight: 900;
-      font-size: 22px;
-      letter-spacing: .6px;
-      text-transform: uppercase;
-      box-shadow: 0 8px 20px rgba(0,0,0,.18);
-    }
+.correct{
+color:#2ecc71;
+}
 
-    .flag-card {
-      width: var(--panel-width);
-      height: 192px;
-      background: #efefef;
-      border-radius: 12px;
-      padding: 12px;
-      box-shadow: 0 10px 26px rgba(0,0,0,.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 auto;
-    }
+/* TIMER */
 
-    .flag-holder {
-      width: 100%;
-      height: 100%;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      border-radius: 4px;
-    }
+.timer{
+position:absolute;
+top:15px;
+right:15px;
+width:60px;
+height:60px;
+border-radius:50%;
+border:6px solid white;
+display:flex;
+justify-content:center;
+align-items:center;
+font-weight:bold;
+font-size:18px;
+background:rgba(0,0,0,.3);
+}
 
-    .flag-holder img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-      background: white;
-    }
+.timer.hidden{display:none}
 
-    .answers {
-      width: var(--panel-width);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: -2px;
-    }
-
-    .answer {
-      font-weight: 900;
-      font-size: 34px;
-      line-height: 1.04;
-      color: var(--yellow);
-      -webkit-text-stroke: 3px #1d1d1d;
-      paint-order: stroke fill;
-      text-transform: uppercase;
-      letter-spacing: .6px;
-      word-break: break-word;
-      user-select: none;
-    }
-
-    .answer.correct {
-      color: #0f9f49;
-    }
-
-    .answer.hidden,
-    .correct-label.hidden {
-      display: none;
-    }
-
-    .correct-label {
-      width: var(--panel-width);
-      margin-top: -2px;
-      text-align: center;
-      font-size: 26px;
-      font-weight: 900;
-      color: #ffffff;
-      text-shadow: 0 3px 8px rgba(0,0,0,.45);
-      text-transform: uppercase;
-      letter-spacing: .8px;
-    }
-
-    .mini-note {
-      color: #9cadc2;
-      font-size: 12px;
-      margin-top: 12px;
-      line-height: 1.35;
-    }
-
-    @media (max-width: 1100px) {
-      body {
-        flex-direction: column;
-      }
-      .controls {
-        width: min(100%, 720px);
-      }
-    }
-  </style>
+</style>
 </head>
+
 <body>
-  <div class="controls">
-    <h2>Flag quiz preview</h2>
-    <p>This is a live preview. Change the layout, question text, background, and answer visibility here before you upload to GitHub.</p>
 
-    <div class="grid">
-      <div class="field">
-        <label for="layoutMode">Layout</label>
-        <select id="layoutMode">
-          <option value="vertical">Vertical 9:16</option>
-          <option value="landscape">Landscape 16:9</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="bgMode">Background</label>
-        <select id="bgMode">
-          <option value="green">Green screen</option>
-          <option value="gradient">Gradient</option>
-          <option value="image">Image URL</option>
-        </select>
-      </div>
-    </div>
+<div class="container">
 
-    <div class="field">
-      <label for="questionInput">Question text</label>
-      <input id="questionInput" type="text" value="WHICH COUNTRY FLAG IS THAT?" />
-    </div>
+<!-- CONTROL PANEL -->
 
-    <div class="grid">
-      <div class="field">
-        <label for="bg1">Color 1</label>
-        <input id="bg1" type="text" value="#00ff00" />
-      </div>
-      <div class="field">
-        <label for="bg2">Color 2</label>
-        <input id="bg2" type="text" value="#00ff00" />
-      </div>
-    </div>
+<div class="controls">
+<h3>Flag Quiz Generator 1.1</h3>
 
-    <div class="field">
-      <label for="imageUrl">Image URL</label>
-      <input id="imageUrl" type="text" placeholder="https://..." />
-    </div>
+<label>Counter text</label>
+<input id="counterInput" value="1/30">
 
-    <div class="toggle-row">
-      <span>Show 3 answer choices</span>
-      <input id="toggleAnswers" type="checkbox" checked />
-    </div>
-    <div class="toggle-row">
-      <span>Show correct answer label</span>
-      <input id="toggleCorrectLabel" type="checkbox" checked />
-    </div>
-    <div class="toggle-row">
-      <span>Reveal highlighted correct answer</span>
-      <input id="toggleReveal" type="checkbox" checked />
-    </div>
+<label>Counter color</label>
+<input id="counterColor" value="#2ecc71">
 
-    <div class="actions">
-      <button id="spinBtn">Spin</button>
-      <button id="revealBtn" class="secondary">Reveal</button>
-    </div>
+<label>Counter outline</label>
+<input id="counterOutline" value="#ffffff">
 
-    <div class="mini-note">Flags are locked to one frame size during the flicker, so the layout does not jump while you screen record.</div>
-  </div>
+<label>Question text</label>
+<input id="questionInput" value="WHICH COUNTRY FLAG IS THAT?">
 
-  <div class="preview-wrap">
-    <div class="frame" id="frame">
-      <div class="stack">
-        <div class="counter" id="counter">3/30</div>
-        <div class="question-pill" id="questionText">WHICH COUNTRY FLAG IS THAT?</div>
-        <div class="flag-card">
-          <div class="flag-holder">
-            <img id="flagImg" alt="Flag" src="https://flagcdn.com/w640/cn.png" />
-          </div>
-        </div>
-        <div class="answers" id="answers">
-          <div class="answer" id="answerA">A) INDIA</div>
-          <div class="answer correct" id="answerB">B) CHINA</div>
-          <div class="answer" id="answerC">C) EGYPT</div>
-        </div>
-        <div class="correct-label" id="correctLabel">ANSWER: CHINA</div>
-      </div>
-    </div>
-  </div>
+<label>Question box color</label>
+<input id="questionBg" value="#ffffff">
 
-  <script>
-    const frame = document.getElementById('frame');
-    const questionInput = document.getElementById('questionInput');
-    const questionText = document.getElementById('questionText');
-    const layoutMode = document.getElementById('layoutMode');
-    const bgMode = document.getElementById('bgMode');
-    const bg1 = document.getElementById('bg1');
-    const bg2 = document.getElementById('bg2');
-    const imageUrl = document.getElementById('imageUrl');
-    const toggleAnswers = document.getElementById('toggleAnswers');
-    const toggleCorrectLabel = document.getElementById('toggleCorrectLabel');
-    const toggleReveal = document.getElementById('toggleReveal');
-    const answers = document.getElementById('answers');
-    const correctLabel = document.getElementById('correctLabel');
-    const spinBtn = document.getElementById('spinBtn');
-    const revealBtn = document.getElementById('revealBtn');
-    const flagImg = document.getElementById('flagImg');
-    const answerEls = [
-      document.getElementById('answerA'),
-      document.getElementById('answerB'),
-      document.getElementById('answerC')
-    ];
+<label>Question text color</label>
+<input id="questionColor" value="#2e7d32">
 
-    const demoFlags = [
-      { code: 'cn', answers: ['INDIA', 'CHINA', 'EGYPT'], correct: 1, label: 'CHINA', counter: '3/30' },
-      { code: 'ca', answers: ['UNITED KINGDOM', "CÔTE D’IVOIRE", 'CANADA'], correct: 2, label: 'CANADA', counter: '4/30' },
-      { code: 'ch', answers: ['GERMANY', 'SWITZERLAND', 'GUINEA'], correct: 1, label: 'SWITZERLAND', counter: '5/30' },
-      { code: 'al', answers: ['ALGERIA', 'ARMENIA', 'ALBANIA'], correct: 2, label: 'ALBANIA', counter: '8/30' },
-      { code: 've', answers: ['CAMEROON', 'TONGA', 'VENEZUELA'], correct: 2, label: 'VENEZUELA', counter: '30/30' },
-      { code: 'bg', answers: ['GUINEA-BISSAU', 'BULGARIA', 'GUATEMALA'], correct: 1, label: 'BULGARIA', counter: '12/30' }
-    ];
+<label>Background color</label>
+<input id="bgColor" value="#00ff00">
 
-    let currentIndex = 0;
-    let spinning = false;
+<label>Mode</label>
+<select id="mode">
+<option value="manual">Manual Spin</option>
+<option value="auto">Auto 30 Questions</option>
+</select>
 
-    function applyLayout() {
-      const vertical = layoutMode.value === 'vertical';
-      document.documentElement.style.setProperty('--frame-width', vertical ? '405px' : '960px');
-      document.documentElement.style.setProperty('--frame-height', vertical ? '720px' : '540px');
-      document.documentElement.style.setProperty('--panel-width', vertical ? '320px' : '360px');
-      questionText.style.fontSize = vertical ? '22px' : '28px';
-      questionText.style.minHeight = vertical ? '76px' : '82px';
-      answerEls.forEach(el => el.style.fontSize = vertical ? '34px' : '40px');
-    }
+<label>Timer seconds</label>
+<input id="timerSeconds" value="5">
 
-    function applyBackground() {
-      frame.classList.remove('image-bg');
-      document.documentElement.style.setProperty('--bg1', bg1.value || '#00ff00');
-      document.documentElement.style.setProperty('--bg2', bg2.value || '#00ff00');
+<label><input type="checkbox" id="hideTimer"> Hide timer</label>
 
-      if (bgMode.value === 'green') {
-        document.documentElement.style.setProperty('--bg1', '#00ff00');
-        document.documentElement.style.setProperty('--bg2', '#00ff00');
-      } else if (bgMode.value === 'image' && imageUrl.value.trim()) {
-        frame.classList.add('image-bg');
-        frame.style.setProperty('--image-bg', `url('${imageUrl.value.trim()}')`);
-      }
-    }
+<button onclick="spin()">Spin</button>
+<button onclick="reveal()">Reveal</button>
+<button onclick="startAuto()">Start Auto</button>
 
-    function applyQuestion() {
-      questionText.textContent = questionInput.value.trim() || 'WHICH COUNTRY FLAG IS THAT?';
-    }
+</div>
 
-    function applyVisibility() {
-      answers.classList.toggle('hidden', !toggleAnswers.checked);
-      correctLabel.classList.toggle('hidden', !toggleCorrectLabel.checked);
-    }
+<!-- QUIZ FRAME -->
 
-    function renderDemo(flag) {
-      flagImg.src = `https://flagcdn.com/w640/${flag.code}.png`;
-      document.getElementById('counter').textContent = flag.counter;
-      answerEls.forEach((el, i) => {
-        el.classList.remove('correct');
-        const letter = ['A', 'B', 'C'][i];
-        el.textContent = `${letter}) ${flag.answers[i]}`;
-      });
-      correctLabel.textContent = `ANSWER: ${flag.label}`;
-      if (toggleReveal.checked) {
-        answerEls[flag.correct].classList.add('correct');
-      }
-    }
+<div class="frame" id="frame">
 
-    function revealCurrent() {
-      answerEls.forEach(el => el.classList.remove('correct'));
-      if (toggleReveal.checked) {
-        answerEls[demoFlags[currentIndex].correct].classList.add('correct');
-      }
-    }
+<div class="timer" id="timer">5</div>
 
-    function spin() {
-      if (spinning) return;
-      spinning = true;
-      answerEls.forEach(el => el.classList.remove('correct'));
+<div class="counter" id="counter">1/30</div>
 
-      let ticks = 0;
-      const totalTicks = 24;
-      const timer = setInterval(() => {
-        const randomFlag = demoFlags[Math.floor(Math.random() * demoFlags.length)];
-        flagImg.src = `https://flagcdn.com/w640/${randomFlag.code}.png`;
-        ticks += 1;
-        if (ticks >= totalTicks) {
-          clearInterval(timer);
-          currentIndex = (currentIndex + 1) % demoFlags.length;
-          renderDemo(demoFlags[currentIndex]);
-          spinning = false;
-        }
-      }, 80);
-    }
+<div class="question" id="question">WHICH COUNTRY FLAG IS THAT?</div>
 
-    questionInput.addEventListener('input', applyQuestion);
-    layoutMode.addEventListener('change', applyLayout);
-    bgMode.addEventListener('change', applyBackground);
-    bg1.addEventListener('input', applyBackground);
-    bg2.addEventListener('input', applyBackground);
-    imageUrl.addEventListener('input', applyBackground);
-    toggleAnswers.addEventListener('change', applyVisibility);
-    toggleCorrectLabel.addEventListener('change', applyVisibility);
-    toggleReveal.addEventListener('change', () => renderDemo(demoFlags[currentIndex]));
-    spinBtn.addEventListener('click', spin);
-    revealBtn.addEventListener('click', revealCurrent);
+<div class="flagbox">
+<img id="flag">
+</div>
 
-    applyLayout();
-    applyBackground();
-    applyQuestion();
-    applyVisibility();
-    renderDemo(demoFlags[currentIndex]);
-  </script>
+<div class="answers" id="answers"></div>
+
+</div>
+
+</div>
+
+<script>
+
+let countries=[]
+let current
+let usedFlags=new Set()
+let round=1
+let autoRunning=false
+
+/* LOAD COUNTRIES */
+
+async function load(){
+
+let res=await fetch("https://restcountries.com/v3.1/all")
+
+countries=await res.json()
+
+spin()
+
+}
+
+/* RANDOM COUNTRY WITHOUT REPEAT */
+
+function randomCountry(){
+
+if(usedFlags.size>=countries.length){
+usedFlags.clear()
+}
+
+let c
+
+while(true){
+
+c=countries[Math.floor(Math.random()*countries.length)]
+
+if(!usedFlags.has(c.cca2)){
+usedFlags.add(c.cca2)
+break
+}
+
+}
+
+return c
+
+}
+
+/* SPIN EFFECT */
+
+function spin(){
+
+let flickers=0
+
+let interval=setInterval(()=>{
+
+let c=randomCountry()
+
+flag.src=c.flags.png
+
+flickers++
+
+if(flickers>20){
+
+clearInterval(interval)
+
+current=c
+
+setAnswers(c)
+
+}
+
+},70)
+
+}
+
+/* CREATE ANSWERS */
+
+function setAnswers(correct){
+
+let options=[correct]
+
+while(options.length<3){
+
+let r=randomCountry()
+
+if(!options.includes(r)) options.push(r)
+
+}
+
+options.sort(()=>Math.random()-0.5)
+
+let html=""
+
+options.forEach((o,i)=>{
+
+let letter=["A","B","C"][i]
+
+html+=`${letter}) ${o.name.common}<br>`
+
+})
+
+answers.innerHTML=html
+
+window.correct=options.indexOf(correct)
+
+}
+
+/* REVEAL ANSWER */
+
+function reveal(){
+
+let lines=answers.innerHTML.split("<br>")
+
+lines[correct]=`<span class='correct'>${lines[correct]}</span>`
+
+answers.innerHTML=lines.join("<br>")
+
+}
+
+/* SETTINGS UPDATE */
+
+function updateSettings(){
+
+counter.innerText=counterInput.value
+
+document.documentElement.style.setProperty('--counter-color',counterColor.value)
+
+document.documentElement.style.setProperty('--counter-outline',counterOutline.value)
+
+question.innerText=questionInput.value
+
+question.style.background=questionBg.value
+
+question.style.color=questionColor.value
+
+frame.style.background=bgColor.value
+
+}
+
+setInterval(updateSettings,200)
+
+/* TIMER */
+
+let timerInterval
+
+function startTimer(seconds,callback){
+
+if(hideTimer.checked){
+
+timer.classList.add("hidden")
+
+}else{
+
+timer.classList.remove("hidden")
+
+}
+
+let s=seconds
+
+clearInterval(timerInterval)
+
+
+timer.innerText=s
+
+
+timerInterval=setInterval(()=>{
+
+s--
+
+timer.innerText=s
+
+if(s<=0){
+
+clearInterval(timerInterval)
+
+callback()
+
+}
+
+},1000)
+
+}
+
+/* AUTO MODE */
+
+function startAuto(){
+
+if(autoRunning) return
+
+autoRunning=true
+
+round=1
+
+nextRound()
+
+}
+
+function nextRound(){
+
+counter.innerText=`${round}/30`
+
+spin()
+
+startTimer(parseInt(timerSeconds.value),()=>{
+
+round++
+
+if(round<=30){
+
+nextRound()
+
+}else{
+
+autoRunning=false
+
+}
+
+})
+
+}
+
+load()
+
+</script>
+
 </body>
 </html>
