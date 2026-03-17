@@ -8,15 +8,13 @@
 <style>
 body{
 margin:0;
-font-family:Arial, Helvetica, sans-serif;
+font-family:Arial;
 background:#00ff00;
 display:flex;
 justify-content:center;
 align-items:center;
 min-height:100vh;
 }
-
-/* FRAME */
 
 .frame{
 display:flex;
@@ -27,19 +25,8 @@ gap:15px;
 padding:20px;
 }
 
-/* LAYOUTS */
-
-.frame.vertical{
-width:405px;
-height:720px;
-}
-
-.frame.horizontal{
-width:900px;
-height:500px;
-}
-
-/* COUNTER */
+.frame.vertical{width:405px;height:720px;}
+.frame.horizontal{width:900px;height:500px;}
 
 .counter{
 font-size:60px;
@@ -48,14 +35,11 @@ color:#2e7d32;
 -webkit-text-stroke:3px white;
 }
 
-/* TIMER */
-
 .timer{
 position:absolute;
 top:20px;
 right:20px;
-width:70px;
-height:70px;
+width:70px;height:70px;
 border-radius:50%;
 border:5px solid white;
 display:flex;
@@ -65,24 +49,14 @@ color:white;
 font-size:24px;
 }
 
-/* QUESTION */
-
 .question-box{
 background:white;
 padding:12px 25px;
 border-radius:30px;
 }
 
-.question{
-font-size:20px;
-font-weight:bold;
-}
-
-/* FLAG */
-
 .flagbox{
-width:320px;
-height:190px;
+width:320px;height:190px;
 background:white;
 border-radius:15px;
 display:flex;
@@ -91,12 +65,8 @@ align-items:center;
 }
 
 .flagbox img{
-width:100%;
-height:100%;
-object-fit:contain;
+width:100%;height:100%;object-fit:contain;
 }
-
-/* ANSWERS */
 
 .answers{
 display:flex;
@@ -112,16 +82,11 @@ color:#ffd54f;
 text-shadow:2px 2px black;
 }
 
-.correct{
-color:#2ecc71;
-}
-
-/* CONTROLS */
+.correct{color:#2ecc71;}
 
 .controls{
 position:fixed;
-left:10px;
-top:10px;
+left:10px;top:10px;
 background:#111;
 padding:15px;
 border-radius:10px;
@@ -129,7 +94,7 @@ color:white;
 width:250px;
 }
 
-.controls input, .controls select{
+.controls input,.controls select{
 width:100%;
 margin-bottom:8px;
 }
@@ -139,15 +104,12 @@ width:100%;
 margin-bottom:5px;
 padding:8px;
 }
-
 </style>
 </head>
 
 <body>
 
 <div class="controls">
-
-<b>Controls</b>
 
 <input id="target" placeholder="Type country (e.g. Ireland)">
 
@@ -173,7 +135,7 @@ padding:8px;
 <div class="timer" id="timer">5</div>
 
 <div class="question-box" id="qbox">
-<div class="question">WHICH COUNTRY FLAG IS THAT?</div>
+<div>WHICH COUNTRY FLAG IS THAT?</div>
 </div>
 
 <div class="flagbox">
@@ -190,7 +152,7 @@ padding:8px;
 
 <script>
 
-// FULL COUNTRY DATA (name + code)
+// COUNTRY LIST
 const countries = [
 {name:"Ireland",code:"ie"},
 {name:"France",code:"fr"},
@@ -237,27 +199,32 @@ const countries = [
 {name:"Czech Republic",code:"cz"},
 {name:"Hungary",code:"hu"},
 {name:"Austria",code:"at"},
-{name:"Switzerland",code:"ch"}
+{name:"Switzerland",code:"ch"},
+{name:"Israel",code:"il"},
+{name:"United Arab Emirates",code:"ae"}
 ];
 
-// FLAG URL
+// FLAG
 function flag(code){
 return `https://flagcdn.com/w640/${code}.png`;
 }
 
-let current;
-
-// MATCH COUNTRY NAME PROPERLY
-function findCountry(name){
-name = name.toLowerCase().trim();
-return countries.find(c => c.name.toLowerCase() === name);
+function normalize(text){
+return text.toLowerCase().trim();
 }
 
-// SPIN (FIXED)
+function findCountry(input){
+let n = normalize(input);
+return countries.find(c => normalize(c.name) === n);
+}
+
+let current;
+
+// 🚀 PERFECT 4s SPIN
 function spin(){
 
-let spins = 0;
-let totalSpins = 60;
+let duration = 4000; // EXACT 4 seconds
+let start = Date.now();
 
 let input = document.getElementById("target").value;
 let target = findCountry(input);
@@ -267,26 +234,26 @@ let final = target || countries[Math.floor(Math.random()*countries.length)];
 let interval = setInterval(()=>{
 
 let r = countries[Math.floor(Math.random()*countries.length)];
-document.getElementById("flag").src = flag(r.code);
+flagEl.src = flag(r.code);
 
-spins++;
-
-if(spins >= totalSpins){
+// stop exactly at 4s
+if(Date.now() - start >= duration){
 
 clearInterval(interval);
 
+// FORCE FINAL FLAG
+flagEl.src = flag(final.code);
 current = final;
-document.getElementById("flag").src = flag(final.code);
 
 setAnswers(final);
 
 }
 
-},70);
+},30); // ultra fast flicker
 
 }
 
-// ANSWERS (FULL NAMES)
+// ANSWERS
 function setAnswers(correct){
 
 let options=[correct];
@@ -316,13 +283,13 @@ function toggleCounter(){counter.style.display = counter.style.display==="none"?
 function toggleTimer(){timer.style.display = timer.style.display==="none"?"flex":"none";}
 function toggleQuestion(){qbox.style.display = qbox.style.display==="none"?"block":"none";}
 
-// LAYOUT FIX
+// LAYOUT
 function setLayout(type){
-let frame = document.getElementById("frame");
 frame.className = "frame " + type;
 }
 
-// START
+// INIT
+const flagEl = document.getElementById("flag");
 spin();
 
 </script>
