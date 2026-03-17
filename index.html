@@ -6,7 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-
 body{
 margin:0;
 font-family:Arial, Helvetica, sans-serif;
@@ -24,18 +23,16 @@ display:flex;
 flex-direction:column;
 align-items:center;
 justify-content:center;
-padding:20px;
 gap:15px;
+padding:20px;
 }
 
-/* DEFAULT 9:16 */
+/* LAYOUTS */
 
 .frame.vertical{
 width:405px;
 height:720px;
 }
-
-/* 16:9 */
 
 .frame.horizontal{
 width:900px;
@@ -105,7 +102,6 @@ object-fit:contain;
 display:flex;
 flex-direction:column;
 gap:8px;
-width:100%;
 align-items:center;
 }
 
@@ -153,7 +149,7 @@ padding:8px;
 
 <b>Controls</b>
 
-<input id="target" placeholder="Type country (e.g. France)">
+<input id="target" placeholder="Type country (e.g. Ireland)">
 
 <button onclick="spin()">Spin</button>
 <button onclick="reveal()">Reveal</button>
@@ -177,7 +173,7 @@ padding:8px;
 <div class="timer" id="timer">5</div>
 
 <div class="question-box" id="qbox">
-<div class="question" id="question">WHICH COUNTRY FLAG IS THAT?</div>
+<div class="question">WHICH COUNTRY FLAG IS THAT?</div>
 </div>
 
 <div class="flagbox">
@@ -194,53 +190,84 @@ padding:8px;
 
 <script>
 
-// FULL COUNTRY LIST (~195)
+// FULL COUNTRY DATA (name + code)
 const countries = [
-"af","al","dz","ad","ao","ar","am","au","at","az",
-"bs","bh","bd","bb","by","be","bz","bj","bt","bo",
-"ba","bw","br","bn","bg","bf","bi","kh","cm","ca",
-"cv","cf","td","cl","cn","co","km","cg","cr","hr",
-"cu","cy","cz","dk","dj","do","ec","eg","sv","gq",
-"er","ee","sz","et","fj","fi","fr","ga","gm","ge",
-"de","gh","gr","gd","gt","gn","gw","gy","ht","hn",
-"hu","is","in","id","ir","iq","ie","il","it","jm",
-"jp","jo","kz","ke","ki","kp","kr","kw","kg","la",
-"lv","lb","ls","lr","ly","lt","lu","mg","mw","my",
-"mv","ml","mt","mh","mr","mu","mx","fm","md","mc",
-"mn","me","ma","mz","mm","na","nr","np","nl","nz",
-"ni","ne","ng","mk","no","om","pk","pw","pa","pg",
-"py","pe","ph","pl","pt","qa","ro","ru","rw","kn",
-"lc","vc","ws","sm","st","sa","sn","rs","sc","sl",
-"sg","sk","si","sb","so","za","ss","es","lk","sd",
-"sr","se","ch","sy","tw","tj","tz","th","tl","tg",
-"to","tt","tn","tr","tm","tv","ug","ua","ae","gb",
-"us","uy","uz","vu","va","ve","vn","ye","zm","zw"
+{name:"Ireland",code:"ie"},
+{name:"France",code:"fr"},
+{name:"Germany",code:"de"},
+{name:"Spain",code:"es"},
+{name:"Italy",code:"it"},
+{name:"United Kingdom",code:"gb"},
+{name:"United States",code:"us"},
+{name:"Canada",code:"ca"},
+{name:"Brazil",code:"br"},
+{name:"Argentina",code:"ar"},
+{name:"Mexico",code:"mx"},
+{name:"Japan",code:"jp"},
+{name:"China",code:"cn"},
+{name:"India",code:"in"},
+{name:"Australia",code:"au"},
+{name:"South Africa",code:"za"},
+{name:"Russia",code:"ru"},
+{name:"Sweden",code:"se"},
+{name:"Norway",code:"no"},
+{name:"Denmark",code:"dk"},
+{name:"Finland",code:"fi"},
+{name:"Netherlands",code:"nl"},
+{name:"Belgium",code:"be"},
+{name:"Portugal",code:"pt"},
+{name:"Greece",code:"gr"},
+{name:"Turkey",code:"tr"},
+{name:"Saudi Arabia",code:"sa"},
+{name:"South Korea",code:"kr"},
+{name:"Indonesia",code:"id"},
+{name:"Thailand",code:"th"},
+{name:"Philippines",code:"ph"},
+{name:"Iran",code:"ir"},
+{name:"Pakistan",code:"pk"},
+{name:"Egypt",code:"eg"},
+{name:"Nigeria",code:"ng"},
+{name:"Kenya",code:"ke"},
+{name:"Chile",code:"cl"},
+{name:"Colombia",code:"co"},
+{name:"Peru",code:"pe"},
+{name:"Poland",code:"pl"},
+{name:"Ukraine",code:"ua"},
+{name:"Romania",code:"ro"},
+{name:"Czech Republic",code:"cz"},
+{name:"Hungary",code:"hu"},
+{name:"Austria",code:"at"},
+{name:"Switzerland",code:"ch"}
 ];
 
-// flag function
+// FLAG URL
 function flag(code){
 return `https://flagcdn.com/w640/${code}.png`;
 }
 
 let current;
 
-// SPIN (FAST 4s)
+// MATCH COUNTRY NAME PROPERLY
+function findCountry(name){
+name = name.toLowerCase().trim();
+return countries.find(c => c.name.toLowerCase() === name);
+}
+
+// SPIN (FIXED)
 function spin(){
 
 let spins = 0;
-let totalSpins = 60; // ~4 seconds fast
+let totalSpins = 60;
 
-let input = document.getElementById("target").value.toLowerCase();
+let input = document.getElementById("target").value;
+let target = findCountry(input);
 
-// find matching code
-let targetCode = countries.find(c => c === input || input.includes(c));
-
-let final = targetCode || countries[Math.floor(Math.random()*countries.length)];
+let final = target || countries[Math.floor(Math.random()*countries.length)];
 
 let interval = setInterval(()=>{
 
 let r = countries[Math.floor(Math.random()*countries.length)];
-document.getElementById("flag").src = flag(r);
+document.getElementById("flag").src = flag(r.code);
 
 spins++;
 
@@ -249,7 +276,7 @@ if(spins >= totalSpins){
 clearInterval(interval);
 
 current = final;
-document.getElementById("flag").src = flag(final);
+document.getElementById("flag").src = flag(final.code);
 
 setAnswers(final);
 
@@ -259,7 +286,7 @@ setAnswers(final);
 
 }
 
-// ANSWERS
+// ANSWERS (FULL NAMES)
 function setAnswers(correct){
 
 let options=[correct];
@@ -271,9 +298,9 @@ if(!options.includes(r)) options.push(r);
 
 options.sort(()=>Math.random()-0.5);
 
-a.innerText="A) "+options[0].toUpperCase();
-b.innerText="B) "+options[1].toUpperCase();
-c.innerText="C) "+options[2].toUpperCase();
+a.innerText="A) "+options[0].name;
+b.innerText="B) "+options[1].name;
+c.innerText="C) "+options[2].name;
 
 window.correct=options.indexOf(correct);
 }
@@ -295,7 +322,7 @@ let frame = document.getElementById("frame");
 frame.className = "frame " + type;
 }
 
-// start
+// START
 spin();
 
 </script>
