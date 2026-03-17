@@ -6,292 +6,572 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+:root{
+  --bg:#00ff00;
+  --frame-w:405px;
+  --frame-h:720px;
+  --flag-w:320px;
+  --flag-h:190px;
+}
+
+*{box-sizing:border-box}
+
 body{
-margin:0;
-font-family:Arial;
-background:#00ff00;
-display:flex;
-justify-content:center;
-align-items:center;
-min-height:100vh;
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:var(--bg);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
 }
 
-.frame{
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-gap:15px;
-padding:20px;
+.wrap{
+  display:flex;
+  gap:18px;
+  align-items:flex-start;
 }
 
-.frame.vertical{width:405px;height:720px;}
-.frame.horizontal{width:900px;height:500px;}
-
-.counter{
-font-size:60px;
-font-weight:bold;
-color:#2e7d32;
--webkit-text-stroke:3px white;
-}
-
-.timer{
-position:absolute;
-top:20px;
-right:20px;
-width:70px;height:70px;
-border-radius:50%;
-border:5px solid white;
-display:flex;
-align-items:center;
-justify-content:center;
-color:white;
-font-size:24px;
-}
-
-.question-box{
-background:white;
-padding:12px 25px;
-border-radius:30px;
-}
-
-.flagbox{
-width:320px;height:190px;
-background:white;
-border-radius:15px;
-display:flex;
-justify-content:center;
-align-items:center;
-}
-
-.flagbox img{
-width:100%;height:100%;object-fit:contain;
-}
-
-.answers{
-display:flex;
-flex-direction:column;
-gap:8px;
-align-items:center;
-}
-
-.answer{
-font-size:28px;
-font-weight:bold;
-color:#ffd54f;
-text-shadow:2px 2px black;
-}
-
-.correct{color:#2ecc71;}
-
+/* CONTROLS */
 .controls{
-position:fixed;
-left:10px;top:10px;
-background:#111;
-padding:15px;
-border-radius:10px;
-color:white;
-width:250px;
+  position:fixed;
+  left:10px;
+  top:10px;
+  background:#111;
+  padding:15px;
+  border-radius:14px;
+  color:#fff;
+  width:250px;
+  z-index:10;
 }
 
-.controls input,.controls select{
-width:100%;
-margin-bottom:8px;
+.controls input,
+.controls select,
+.controls button{
+  width:100%;
+  margin-bottom:8px;
+  padding:8px;
+  border-radius:8px;
+  border:none;
 }
 
 .controls button{
-width:100%;
-margin-bottom:5px;
-padding:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.controls.hidden{
+  display:none;
+}
+
+/* FRAME */
+.frame{
+  width:var(--frame-w);
+  height:var(--frame-h);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  padding:20px;
+  position:relative;
+}
+
+.counter{
+  font-size:60px;
+  font-weight:bold;
+  color:#2e7d32;
+  -webkit-text-stroke:3px white;
+  line-height:1;
+}
+
+.timer{
+  position:absolute;
+  top:20px;
+  right:20px;
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  border:5px solid white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-size:24px;
+  font-weight:bold;
+  background:rgba(0,0,0,.15);
+}
+
+.question-box{
+  background:white;
+  padding:12px 25px;
+  border-radius:30px;
+  text-align:center;
+}
+
+.question{
+  font-size:20px;
+  font-weight:bold;
+  text-transform:uppercase;
+}
+
+.flagbox{
+  width:var(--flag-w);
+  height:var(--flag-h);
+  background:white;
+  border-radius:15px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+
+.flagbox img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+}
+
+.answers{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  align-items:center;
+  width:100%;
+}
+
+.answer{
+  font-size:28px;
+  font-weight:bold;
+  color:#ffd54f;
+  text-shadow:2px 2px #000;
+}
+
+.answer.correct{
+  color:#2ecc71;
+}
+
+.hidden{
+  display:none !important;
 }
 </style>
 </head>
 
 <body>
 
-<div class="controls">
+<div class="controls" id="controls">
+  <b>Controls</b>
+  <input id="target" placeholder="Type country (e.g. Ireland, usa, dubai)">
+  <button onclick="spin()">Spin</button>
+  <button onclick="reveal()">Reveal</button>
+  <button onclick="toggleAnswers()">Toggle Answers</button>
+  <button onclick="toggleCounter()">Toggle Counter</button>
+  <button onclick="toggleTimer()">Toggle Timer</button>
+  <button onclick="toggleQuestion()">Toggle Question</button>
+  <button onclick="toggleControls()">Hide UI</button>
 
-<input id="target" placeholder="Type country (e.g. Ireland)">
-
-<button onclick="spin()">Spin</button>
-<button onclick="reveal()">Reveal</button>
-
-<button onclick="toggleAnswers()">Toggle Answers</button>
-<button onclick="toggleCounter()">Toggle Counter</button>
-<button onclick="toggleTimer()">Toggle Timer</button>
-<button onclick="toggleQuestion()">Toggle Question</button>
-
-<select onchange="setLayout(this.value)">
-<option value="vertical">9:16</option>
-<option value="horizontal">16:9</option>
-</select>
-
+  <select onchange="setLayout(this.value)">
+    <option value="vertical">9:16</option>
+    <option value="horizontal">16:9</option>
+  </select>
 </div>
 
-<div class="frame vertical" id="frame">
+<div class="frame" id="frame">
+  <div class="counter" id="counter">1 / 30</div>
+  <div class="timer" id="timer">5</div>
 
-<div class="counter" id="counter">1 / 30</div>
+  <div class="question-box" id="qbox">
+    <div class="question">WHICH COUNTRY FLAG IS THAT?</div>
+  </div>
 
-<div class="timer" id="timer">5</div>
+  <div class="flagbox">
+    <img id="flag" alt="flag">
+  </div>
 
-<div class="question-box" id="qbox">
-<div>WHICH COUNTRY FLAG IS THAT?</div>
-</div>
-
-<div class="flagbox">
-<img id="flag">
-</div>
-
-<div class="answers" id="answers">
-<div class="answer" id="a"></div>
-<div class="answer" id="b"></div>
-<div class="answer" id="c"></div>
-</div>
-
+  <div class="answers" id="answers">
+    <div class="answer" id="a"></div>
+    <div class="answer" id="b"></div>
+    <div class="answer" id="c"></div>
+  </div>
 </div>
 
 <script>
-
-// COUNTRY LIST
 const countries = [
-{name:"Ireland",code:"ie"},
-{name:"France",code:"fr"},
-{name:"Germany",code:"de"},
-{name:"Spain",code:"es"},
-{name:"Italy",code:"it"},
-{name:"United Kingdom",code:"gb"},
-{name:"United States",code:"us"},
-{name:"Canada",code:"ca"},
-{name:"Brazil",code:"br"},
-{name:"Argentina",code:"ar"},
-{name:"Mexico",code:"mx"},
-{name:"Japan",code:"jp"},
-{name:"China",code:"cn"},
-{name:"India",code:"in"},
-{name:"Australia",code:"au"},
-{name:"South Africa",code:"za"},
-{name:"Russia",code:"ru"},
-{name:"Sweden",code:"se"},
-{name:"Norway",code:"no"},
-{name:"Denmark",code:"dk"},
-{name:"Finland",code:"fi"},
-{name:"Netherlands",code:"nl"},
-{name:"Belgium",code:"be"},
-{name:"Portugal",code:"pt"},
-{name:"Greece",code:"gr"},
-{name:"Turkey",code:"tr"},
-{name:"Saudi Arabia",code:"sa"},
-{name:"South Korea",code:"kr"},
-{name:"Indonesia",code:"id"},
-{name:"Thailand",code:"th"},
-{name:"Philippines",code:"ph"},
-{name:"Iran",code:"ir"},
-{name:"Pakistan",code:"pk"},
-{name:"Egypt",code:"eg"},
-{name:"Nigeria",code:"ng"},
-{name:"Kenya",code:"ke"},
-{name:"Chile",code:"cl"},
-{name:"Colombia",code:"co"},
-{name:"Peru",code:"pe"},
-{name:"Poland",code:"pl"},
-{name:"Ukraine",code:"ua"},
-{name:"Romania",code:"ro"},
-{name:"Czech Republic",code:"cz"},
-{name:"Hungary",code:"hu"},
-{name:"Austria",code:"at"},
-{name:"Switzerland",code:"ch"},
-{name:"Israel",code:"il"},
-{name:"United Arab Emirates",code:"ae"}
+  {name:"Afghanistan", code:"af"},
+  {name:"Albania", code:"al"},
+  {name:"Algeria", code:"dz"},
+  {name:"Andorra", code:"ad"},
+  {name:"Angola", code:"ao"},
+  {name:"Argentina", code:"ar"},
+  {name:"Armenia", code:"am"},
+  {name:"Australia", code:"au"},
+  {name:"Austria", code:"at"},
+  {name:"Azerbaijan", code:"az"},
+  {name:"Bahamas", code:"bs"},
+  {name:"Bahrain", code:"bh"},
+  {name:"Bangladesh", code:"bd"},
+  {name:"Barbados", code:"bb"},
+  {name:"Belarus", code:"by"},
+  {name:"Belgium", code:"be"},
+  {name:"Belize", code:"bz"},
+  {name:"Benin", code:"bj"},
+  {name:"Bhutan", code:"bt"},
+  {name:"Bolivia", code:"bo"},
+  {name:"Bosnia and Herzegovina", code:"ba"},
+  {name:"Botswana", code:"bw"},
+  {name:"Brazil", code:"br"},
+  {name:"Brunei", code:"bn"},
+  {name:"Bulgaria", code:"bg"},
+  {name:"Burkina Faso", code:"bf"},
+  {name:"Burundi", code:"bi"},
+  {name:"Cambodia", code:"kh"},
+  {name:"Cameroon", code:"cm"},
+  {name:"Canada", code:"ca"},
+  {name:"Cape Verde", code:"cv"},
+  {name:"Central African Republic", code:"cf"},
+  {name:"Chad", code:"td"},
+  {name:"Chile", code:"cl"},
+  {name:"China", code:"cn"},
+  {name:"Colombia", code:"co"},
+  {name:"Comoros", code:"km"},
+  {name:"Congo", code:"cg"},
+  {name:"Costa Rica", code:"cr"},
+  {name:"Croatia", code:"hr"},
+  {name:"Cuba", code:"cu"},
+  {name:"Cyprus", code:"cy"},
+  {name:"Czech Republic", code:"cz"},
+  {name:"Denmark", code:"dk"},
+  {name:"Djibouti", code:"dj"},
+  {name:"Dominica", code:"dm"},
+  {name:"Dominican Republic", code:"do"},
+  {name:"Ecuador", code:"ec"},
+  {name:"Egypt", code:"eg"},
+  {name:"El Salvador", code:"sv"},
+  {name:"Equatorial Guinea", code:"gq"},
+  {name:"Eritrea", code:"er"},
+  {name:"Estonia", code:"ee"},
+  {name:"Eswatini", code:"sz"},
+  {name:"Ethiopia", code:"et"},
+  {name:"Fiji", code:"fj"},
+  {name:"Finland", code:"fi"},
+  {name:"France", code:"fr"},
+  {name:"Gabon", code:"ga"},
+  {name:"Gambia", code:"gm"},
+  {name:"Georgia", code:"ge"},
+  {name:"Germany", code:"de"},
+  {name:"Ghana", code:"gh"},
+  {name:"Greece", code:"gr"},
+  {name:"Grenada", code:"gd"},
+  {name:"Guatemala", code:"gt"},
+  {name:"Guinea", code:"gn"},
+  {name:"Guinea-Bissau", code:"gw"},
+  {name:"Guyana", code:"gy"},
+  {name:"Haiti", code:"ht"},
+  {name:"Honduras", code:"hn"},
+  {name:"Hungary", code:"hu"},
+  {name:"Iceland", code:"is"},
+  {name:"India", code:"in"},
+  {name:"Indonesia", code:"id"},
+  {name:"Iran", code:"ir"},
+  {name:"Iraq", code:"iq"},
+  {name:"Ireland", code:"ie"},
+  {name:"Israel", code:"il"},
+  {name:"Italy", code:"it"},
+  {name:"Jamaica", code:"jm"},
+  {name:"Japan", code:"jp"},
+  {name:"Jordan", code:"jo"},
+  {name:"Kazakhstan", code:"kz"},
+  {name:"Kenya", code:"ke"},
+  {name:"Kiribati", code:"ki"},
+  {name:"North Korea", code:"kp"},
+  {name:"South Korea", code:"kr"},
+  {name:"Kuwait", code:"kw"},
+  {name:"Kyrgyzstan", code:"kg"},
+  {name:"Laos", code:"la"},
+  {name:"Latvia", code:"lv"},
+  {name:"Lebanon", code:"lb"},
+  {name:"Lesotho", code:"ls"},
+  {name:"Liberia", code:"lr"},
+  {name:"Libya", code:"ly"},
+  {name:"Liechtenstein", code:"li"},
+  {name:"Lithuania", code:"lt"},
+  {name:"Luxembourg", code:"lu"},
+  {name:"Madagascar", code:"mg"},
+  {name:"Malawi", code:"mw"},
+  {name:"Malaysia", code:"my"},
+  {name:"Maldives", code:"mv"},
+  {name:"Mali", code:"ml"},
+  {name:"Malta", code:"mt"},
+  {name:"Marshall Islands", code:"mh"},
+  {name:"Mauritania", code:"mr"},
+  {name:"Mauritius", code:"mu"},
+  {name:"Mexico", code:"mx"},
+  {name:"Micronesia", code:"fm"},
+  {name:"Moldova", code:"md"},
+  {name:"Monaco", code:"mc"},
+  {name:"Mongolia", code:"mn"},
+  {name:"Montenegro", code:"me"},
+  {name:"Morocco", code:"ma"},
+  {name:"Mozambique", code:"mz"},
+  {name:"Myanmar", code:"mm"},
+  {name:"Namibia", code:"na"},
+  {name:"Nauru", code:"nr"},
+  {name:"Nepal", code:"np"},
+  {name:"Netherlands", code:"nl"},
+  {name:"New Zealand", code:"nz"},
+  {name:"Nicaragua", code:"ni"},
+  {name:"Niger", code:"ne"},
+  {name:"Nigeria", code:"ng"},
+  {name:"North Macedonia", code:"mk"},
+  {name:"Norway", code:"no"},
+  {name:"Oman", code:"om"},
+  {name:"Pakistan", code:"pk"},
+  {name:"Palau", code:"pw"},
+  {name:"Panama", code:"pa"},
+  {name:"Papua New Guinea", code:"pg"},
+  {name:"Paraguay", code:"py"},
+  {name:"Peru", code:"pe"},
+  {name:"Philippines", code:"ph"},
+  {name:"Poland", code:"pl"},
+  {name:"Portugal", code:"pt"},
+  {name:"Qatar", code:"qa"},
+  {name:"Romania", code:"ro"},
+  {name:"Russia", code:"ru"},
+  {name:"Rwanda", code:"rw"},
+  {name:"Saint Kitts and Nevis", code:"kn"},
+  {name:"Saint Lucia", code:"lc"},
+  {name:"Saint Vincent and the Grenadines", code:"vc"},
+  {name:"Samoa", code:"ws"},
+  {name:"San Marino", code:"sm"},
+  {name:"Sao Tome and Principe", code:"st"},
+  {name:"Saudi Arabia", code:"sa"},
+  {name:"Senegal", code:"sn"},
+  {name:"Serbia", code:"rs"},
+  {name:"Seychelles", code:"sc"},
+  {name:"Sierra Leone", code:"sl"},
+  {name:"Singapore", code:"sg"},
+  {name:"Slovakia", code:"sk"},
+  {name:"Slovenia", code:"si"},
+  {name:"Solomon Islands", code:"sb"},
+  {name:"Somalia", code:"so"},
+  {name:"South Africa", code:"za"},
+  {name:"South Sudan", code:"ss"},
+  {name:"Spain", code:"es"},
+  {name:"Sri Lanka", code:"lk"},
+  {name:"Sudan", code:"sd"},
+  {name:"Suriname", code:"sr"},
+  {name:"Sweden", code:"se"},
+  {name:"Switzerland", code:"ch"},
+  {name:"Syria", code:"sy"},
+  {name:"Taiwan", code:"tw"},
+  {name:"Tajikistan", code:"tj"},
+  {name:"Tanzania", code:"tz"},
+  {name:"Thailand", code:"th"},
+  {name:"Timor-Leste", code:"tl"},
+  {name:"Togo", code:"tg"},
+  {name:"Tonga", code:"to"},
+  {name:"Trinidad and Tobago", code:"tt"},
+  {name:"Tunisia", code:"tn"},
+  {name:"Turkey", code:"tr"},
+  {name:"Turkmenistan", code:"tm"},
+  {name:"Tuvalu", code:"tv"},
+  {name:"Uganda", code:"ug"},
+  {name:"Ukraine", code:"ua"},
+  {name:"United Arab Emirates", code:"ae"},
+  {name:"United Kingdom", code:"gb"},
+  {name:"United States", code:"us"},
+  {name:"Uruguay", code:"uy"},
+  {name:"Uzbekistan", code:"uz"},
+  {name:"Vanuatu", code:"vu"},
+  {name:"Vatican City", code:"va"},
+  {name:"Venezuela", code:"ve"},
+  {name:"Vietnam", code:"vn"},
+  {name:"Yemen", code:"ye"},
+  {name:"Zambia", code:"zm"},
+  {name:"Zimbabwe", code:"zw"}
 ];
 
-// FLAG
-function flag(code){
-return `https://flagcdn.com/w640/${code}.png`;
-}
+const aliases = {
+  usa: "United States",
+  america: "United States",
+  us: "United States",
+  uk: "United Kingdom",
+  britain: "United Kingdom",
+  england: "United Kingdom",
+  uae: "United Arab Emirates",
+  dubai: "United Arab Emirates",
+  southkorea: "South Korea",
+  northkorea: "North Korea",
+  czechia: "Czech Republic"
+};
 
-function normalize(text){
-return text.toLowerCase().trim();
-}
-
-function findCountry(input){
-let n = normalize(input);
-return countries.find(c => normalize(c.name) === n);
-}
-
-let current;
-
-// 🚀 PERFECT 4s SPIN
-function spin(){
-
-let duration = 4000; // EXACT 4 seconds
-let start = Date.now();
-
-let input = document.getElementById("target").value;
-let target = findCountry(input);
-
-let final = target || countries[Math.floor(Math.random()*countries.length)];
-
-let interval = setInterval(()=>{
-
-let r = countries[Math.floor(Math.random()*countries.length)];
-flagEl.src = flag(r.code);
-
-// stop exactly at 4s
-if(Date.now() - start >= duration){
-
-clearInterval(interval);
-
-// FORCE FINAL FLAG
-flagEl.src = flag(final.code);
-current = final;
-
-setAnswers(final);
-
-}
-
-},30); // ultra fast flicker
-
-}
-
-// ANSWERS
-function setAnswers(correct){
-
-let options=[correct];
-
-while(options.length<3){
-let r=countries[Math.floor(Math.random()*countries.length)];
-if(!options.includes(r)) options.push(r);
-}
-
-options.sort(()=>Math.random()-0.5);
-
-a.innerText="A) "+options[0].name;
-b.innerText="B) "+options[1].name;
-c.innerText="C) "+options[2].name;
-
-window.correct=options.indexOf(correct);
-}
-
-// REVEAL
-function reveal(){
-document.querySelectorAll(".answer")[correct].classList.add("correct");
-}
-
-// TOGGLES
-function toggleAnswers(){answers.style.display = answers.style.display==="none"?"flex":"none";}
-function toggleCounter(){counter.style.display = counter.style.display==="none"?"block":"none";}
-function toggleTimer(){timer.style.display = timer.style.display==="none"?"flex":"none";}
-function toggleQuestion(){qbox.style.display = qbox.style.display==="none"?"block":"none";}
-
-// LAYOUT
-function setLayout(type){
-frame.className = "frame " + type;
-}
-
-// INIT
 const flagEl = document.getElementById("flag");
-spin();
+const answersEl = document.getElementById("answers");
+const counterEl = document.getElementById("counter");
+const timerEl = document.getElementById("timer");
+const qboxEl = document.getElementById("qbox");
+const frameEl = document.getElementById("frame");
 
+let current = null;
+let currentCorrectIndex = -1;
+let spinInterval = null;
+let timerInterval = null;
+
+function flagUrl(code){
+  return `https://flagcdn.com/w640/${code}.png`;
+}
+
+function normalize(s){
+  return s.toLowerCase().trim().replace(/[^\w\s-]/g,"");
+}
+
+function resolveTargetCountry(input){
+  const raw = normalize(input);
+  if(!raw) return null;
+
+  const aliasHit = aliases[raw];
+  if(aliasHit){
+    return countries.find(c => c.name === aliasHit) || null;
+  }
+
+  const exact = countries.find(c => normalize(c.name) === raw);
+  if(exact) return exact;
+
+  const partial = countries.find(c => normalize(c.name).includes(raw));
+  if(partial) return partial;
+
+  return null;
+}
+
+function randomCountry(){
+  return countries[Math.floor(Math.random() * countries.length)];
+}
+
+function clearReveal(){
+  document.querySelectorAll(".answer").forEach(el => el.classList.remove("correct"));
+  currentCorrectIndex = -1;
+}
+
+function setAnswers(correct){
+  const options = [correct];
+
+  while(options.length < 3){
+    const r = randomCountry();
+    if(!options.some(o => o.code === r.code)){
+      options.push(r);
+    }
+  }
+
+  options.sort(() => Math.random() - 0.5);
+
+  document.getElementById("a").textContent = `A) ${options[0].name}`;
+  document.getElementById("b").textContent = `B) ${options[1].name}`;
+  document.getElementById("c").textContent = `C) ${options[2].name}`;
+
+  currentCorrectIndex = options.findIndex(o => o.code === correct.code);
+}
+
+function reveal(){
+  clearReveal();
+  if(currentCorrectIndex >= 0){
+    document.querySelectorAll(".answer")[currentCorrectIndex].classList.add("correct");
+  }
+}
+
+function clearSpinTimer(){
+  if(spinInterval){
+    clearInterval(spinInterval);
+    spinInterval = null;
+  }
+  if(timerInterval){
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
+function startTimer(seconds = 5){
+  let time = seconds;
+  timerEl.textContent = time;
+
+  if(timerEl.classList.contains("hidden")) return;
+
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    time--;
+    timerEl.textContent = time;
+    if(time <= 0){
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }, 1000);
+}
+
+function spin(){
+  clearSpinTimer();
+  clearReveal();
+
+  const input = document.getElementById("target").value;
+  const target = resolveTargetCountry(input);
+  const finalCountry = target || randomCountry();
+
+  const duration = 4000;
+  const tickMs = 30;
+  const start = Date.now();
+
+  spinInterval = setInterval(() => {
+    flagEl.src = flagUrl(randomCountry().code);
+
+    if(Date.now() - start >= duration){
+      clearInterval(spinInterval);
+      spinInterval = null;
+
+      current = finalCountry;
+      flagEl.src = flagUrl(finalCountry.code);
+      setAnswers(finalCountry);
+      startTimer(5);
+    }
+  }, tickMs);
+}
+
+function toggleAnswers(){
+  answersEl.classList.toggle("hidden");
+}
+
+function toggleCounter(){
+  counterEl.classList.toggle("hidden");
+}
+
+function toggleTimer(){
+  timerEl.classList.toggle("hidden");
+}
+
+function toggleQuestion(){
+  qboxEl.classList.toggle("hidden");
+}
+
+function toggleControls(){
+  document.getElementById("controls").classList.toggle("hidden");
+}
+
+function setLayout(type){
+  if(type === "horizontal"){
+    document.documentElement.style.setProperty("--frame-w", "900px");
+    document.documentElement.style.setProperty("--frame-h", "500px");
+    document.documentElement.style.setProperty("--flag-w", "360px");
+    document.documentElement.style.setProperty("--flag-h", "210px");
+    frameEl.style.width = "900px";
+    frameEl.style.height = "500px";
+  } else {
+    frameEl.style.width = "405px";
+    frameEl.style.height = "720px";
+  }
+}
+
+/* init */
+frameEl.style.width = "405px";
+frameEl.style.height = "720px";
+spin();
 </script>
 
 </body>
