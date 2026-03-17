@@ -6,592 +6,301 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-:root{
-  --bg:#00ff00;
-  --frame-w:405px;
-  --frame-h:720px;
-  --flag-w:320px;
-  --flag-h:190px;
-  --counter-color:#2e7d32;
-  --counter-outline:#ffffff;
-  --question-text-color:#2e7d32;
-  --question-box-color:#ffffff;
-  --answer-color:#ffd54f;
-  --correct-color:#2ecc71;
-}
-
-*{box-sizing:border-box;}
-
 body{
-  margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:var(--bg);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  padding:18px;
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:#00ff00;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
 }
 
-.wrap{
-  display:flex;
-  gap:18px;
-  align-items:flex-start;
-}
-
-/* VIDEO FRAME */
+/* FRAME */
 
 .frame{
-  width:var(--frame-w);
-  height:var(--frame-h);
-  background:var(--bg);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-start;
-  padding:15px;
-  box-sizing:border-box;
-  position:relative;
-  border-radius:22px;
-  overflow:hidden;
+width:405px;
+height:720px;
+display:flex;
+flex-direction:column;
+align-items:center;
+padding:15px;
 }
 
 /* COUNTER */
 
 .counter{
-  font-size:56px;
-  font-weight:bold;
-  color:var(--counter-color);
-  -webkit-text-stroke:3px var(--counter-outline);
-  line-height:1;
-  margin-bottom:12px;
+font-size:60px;
+font-weight:bold;
+color:#2e7d32;
+-webkit-text-stroke:3px white;
 }
 
 /* TIMER */
 
 .timer{
-  position:absolute;
-  top:12px;
-  right:12px;
-  width:64px;
-  height:64px;
-  border-radius:50%;
-  border:5px solid white;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:24px;
-  font-weight:bold;
-  color:white;
-  background:rgba(0,0,0,0.35);
+position:absolute;
+top:20px;
+right:20px;
+width:70px;
+height:70px;
+border-radius:50%;
+border:5px solid white;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-size:24px;
 }
 
 /* QUESTION */
 
 .question-box{
-  background:var(--question-box-color);
-  padding:14px 26px;
-  border-radius:34px;
-  margin-bottom:16px;
-  max-width:100%;
-  text-align:center;
+background:white;
+padding:12px 25px;
+border-radius:30px;
+margin:15px 0;
 }
 
 .question{
-  font-size:20px;
-  font-weight:bold;
-  color:var(--question-text-color);
-  line-height:1.15;
-  text-transform:uppercase;
+font-size:20px;
+font-weight:bold;
 }
 
 /* FLAG */
 
 .flagbox{
-  width:var(--flag-w);
-  height:var(--flag-h);
-  background:white;
-  border-radius:18px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 5px 10px rgba(0,0,0,0.3);
-  margin-bottom:16px;
-  overflow:hidden;
-  padding:0;
+width:320px;
+height:190px;
+background:white;
+border-radius:15px;
+display:flex;
+justify-content:center;
+align-items:center;
+margin-bottom:15px;
 }
 
 .flagbox img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  display:block;
-  background:white;
+width:100%;
+height:100%;
+object-fit:contain;
 }
 
 /* ANSWERS */
 
 .answers{
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+width:100%;
 }
 
 .answer{
-  font-size:28px;
-  font-weight:bold;
-  color:var(--answer-color);
-  text-shadow:2px 2px 0 #000;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+font-size:28px;
+font-weight:bold;
+color:#ffd54f;
+text-shadow:2px 2px black;
 }
 
 .correct{
-  color:var(--correct-color);
+color:#2ecc71;
 }
 
 /* CONTROLS */
 
 .controls{
-  width:300px;
-  background:#111;
-  padding:15px;
-  border-radius:14px;
-  color:white;
-  font-size:14px;
+position:fixed;
+left:10px;
+top:10px;
+background:#111;
+padding:15px;
+border-radius:10px;
+color:white;
+width:250px;
 }
 
-.controls h3{
-  margin:0 0 12px 0;
-  font-size:22px;
-}
-
-.controls .row{
-  margin-bottom:10px;
-}
-
-.controls label{
-  display:block;
-  margin-bottom:4px;
-}
-
-.controls input[type="text"],
-.controls input[type="number"],
-.controls input[type="color"],
-.controls select{
-  width:100%;
-  margin:0;
-}
-
-.controls input[type="text"],
-.controls input[type="number"],
-.controls select{
-  padding:8px 10px;
-  border-radius:8px;
-  border:none;
-}
-
-.controls input[type="color"]{
-  height:38px;
-  border:none;
-  border-radius:8px;
-  background:none;
-  padding:0;
+.controls input, .controls select{
+width:100%;
+margin-bottom:8px;
 }
 
 .controls button{
-  margin-top:6px;
-  width:100%;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.controls .two{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-}
-
-.small-note{
-  color:#bdbdbd;
-  font-size:12px;
-  line-height:1.3;
-}
-
-.hidden{
-  display:none !important;
+width:100%;
+margin-bottom:5px;
+padding:8px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="wrap">
+<div class="controls">
+<b>Controls</b>
 
-  <div class="controls" id="controls">
-    <h3>Flag Quiz Controls</h3>
+<input id="target" placeholder="Type country (e.g. France)">
 
-    <div class="row">
-      <label>Target country to land on</label>
-      <input type="text" id="targetCountry" list="countryList" placeholder="Type a country name">
-      <datalist id="countryList"></datalist>
-    </div>
+<button onclick="spin()">Spin</button>
+<button onclick="reveal()">Reveal</button>
 
-    <div class="two">
-      <button onclick="spin()">Spin</button>
-      <button onclick="reveal()">Reveal</button>
-    </div>
+<button onclick="toggleAnswers()">Toggle Answers</button>
+<button onclick="toggleCounter()">Toggle Counter</button>
+<button onclick="toggleTimer()">Toggle Timer</button>
+<button onclick="toggleQuestion()">Toggle Question</button>
 
-    <div class="two">
-      <button onclick="clearTarget()">Clear Target</button>
-      <button onclick="toggleControls()">Hide UI</button>
-    </div>
+<select onchange="setLayout(this.value)">
+<option value="9:16">9:16</option>
+<option value="16:9">16:9</option>
+</select>
 
-    <div class="row">
-      <label>Layout</label>
-      <select id="layoutSelect" onchange="applyLayout()">
-        <option value="9:16">9:16</option>
-        <option value="16:9">16:9</option>
-      </select>
-    </div>
+</div>
 
-    <div class="row">
-      <label>Spin seconds</label>
-      <input type="number" id="spinSeconds" min="1" max="10" value="4">
-    </div>
+<div class="frame">
 
-    <div class="row">
-      <label>Timer seconds</label>
-      <input type="number" id="timerSeconds" min="1" max="20" value="5">
-    </div>
+<div class="counter" id="counter">1 / 30</div>
 
-    <div class="two">
-      <button onclick="toggleCounter()">Toggle Counter</button>
-      <button onclick="toggleTimer()">Toggle Timer</button>
-    </div>
+<div class="timer" id="timer">5</div>
 
-    <div class="two">
-      <button onclick="toggleQuestionText()">Toggle Question Text</button>
-      <button onclick="toggleQuestionBox()">Toggle Question Box</button>
-    </div>
+<div class="question-box" id="qbox">
+<div class="question" id="question">WHICH COUNTRY FLAG IS THAT?</div>
+</div>
 
-    <div class="row">
-      <button onclick="toggleAnswers()">Toggle Answers</button>
-    </div>
+<div class="flagbox">
+<img id="flag">
+</div>
 
-    <div class="row">
-      <label>Counter text</label>
-      <input type="text" id="counterTextInput" value="1 / 30" oninput="applyStyles()">
-    </div>
+<div class="answers" id="answers">
+<div class="answer" id="a"></div>
+<div class="answer" id="b"></div>
+<div class="answer" id="c"></div>
+</div>
 
-    <div class="row">
-      <label>Question text</label>
-      <input type="text" id="questionTextInput" value="WHICH COUNTRY FLAG IS THAT?" oninput="applyStyles()">
-    </div>
-
-    <div class="row">
-      <label>Background color</label>
-      <input type="color" id="bgColor" value="#00ff00" oninput="applyStyles()">
-    </div>
-
-    <div class="row">
-      <label>Counter color</label>
-      <input type="color" id="counterColor" value="#2e7d32" oninput="applyStyles()">
-    </div>
-
-    <div class="row">
-      <label>Counter outline</label>
-      <input type="color" id="counterOutline" value="#ffffff" oninput="applyStyles()">
-    </div>
-
-    <div class="row">
-      <label>Question text color</label>
-      <input type="color" id="questionTextColor" value="#2e7d32" oninput="applyStyles()">
-    </div>
-
-    <div class="row">
-      <label>Question box color</label>
-      <input type="color" id="questionBoxColor" value="#ffffff" oninput="applyStyles()">
-    </div>
-
-    <div class="row">
-      <label>Answer color</label>
-      <input type="color" id="answerColor" value="#ffd54f" oninput="applyStyles()">
-    </div>
-
-    <div class="row">
-      <label>Correct answer color</label>
-      <input type="color" id="correctColor" value="#2ecc71" oninput="applyStyles()">
-    </div>
-
-    <div class="small-note">
-      Type a target country and press Spin. If left blank, the spinner lands on a random country.
-    </div>
-  </div>
-
-  <div class="frame" id="frame">
-
-    <div class="timer" id="timer">5</div>
-
-    <div class="counter" id="counter">1 / 30</div>
-
-    <div class="question-box" id="questionBox">
-      <div class="question" id="questionText">WHICH COUNTRY FLAG IS THAT?</div>
-    </div>
-
-    <div class="flagbox">
-      <img id="flag" alt="Flag">
-    </div>
-
-    <div class="answers" id="answers">
-      <div class="answer" id="a"></div>
-      <div class="answer" id="b"></div>
-      <div class="answer" id="c"></div>
-    </div>
-
-  </div>
 </div>
 
 <script>
-let countries = [];
-let current = null;
-let lastFinalCode = null;
-let timerInterval = null;
-let spinInterval = null;
-let controlsHidden = false;
 
-async function load(){
-  const res = await fetch("https://restcountries.com/v3.1/all");
-  const data = await res.json();
+// STATIC COUNTRIES (WORKING — NO API)
+const countries = [
+{n:"France",c:"fr"},
+{n:"Germany",c:"de"},
+{n:"Spain",c:"es"},
+{n:"Italy",c:"it"},
+{n:"United Kingdom",c:"gb"},
+{n:"United States",c:"us"},
+{n:"Canada",c:"ca"},
+{n:"Brazil",c:"br"},
+{n:"Argentina",c:"ar"},
+{n:"Mexico",c:"mx"},
+{n:"Japan",c:"jp"},
+{n:"China",c:"cn"},
+{n:"India",c:"in"},
+{n:"Australia",c:"au"},
+{n:"South Africa",c:"za"},
+{n:"Russia",c:"ru"},
+{n:"Sweden",c:"se"},
+{n:"Norway",c:"no"},
+{n:"Denmark",c:"dk"},
+{n:"Finland",c:"fi"},
+{n:"Netherlands",c:"nl"},
+{n:"Belgium",c:"be"},
+{n:"Portugal",c:"pt"},
+{n:"Greece",c:"gr"},
+{n:"Turkey",c:"tr"},
+{n:"Saudi Arabia",c:"sa"},
+{n:"South Korea",c:"kr"},
+{n:"Indonesia",c:"id"},
+{n:"Thailand",c:"th"},
+{n:"Philippines",c:"ph"}
+];
 
-  countries = data
-    .filter(c =>
-      c &&
-      c.name &&
-      c.name.common &&
-      c.flags &&
-      c.flags.png &&
-      c.cca2
-    )
-    .map(c => ({
-      name: c.name.common,
-      flag: c.flags.png,
-      code: c.cca2
-    }))
-    .sort((a,b) => a.name.localeCompare(b.name));
-
-  populateCountryList();
-  applyLayout();
-  applyStyles();
-  spin();
+function flag(code){
+return `https://flagcdn.com/w640/${code}.png`;
 }
 
-function populateCountryList(){
-  const list = document.getElementById("countryList");
-  list.innerHTML = "";
-  countries.forEach(c => {
-    const option = document.createElement("option");
-    option.value = c.name;
-    list.appendChild(option);
-  });
-}
+let current;
 
-function getTargetCountry(){
-  const value = document.getElementById("targetCountry").value.trim().toLowerCase();
-  if(!value) return null;
-  return countries.find(c => c.name.toLowerCase() === value) || null;
-}
-
-function randomCountry(excludeCode = null){
-  let pick;
-  do{
-    pick = countries[Math.floor(Math.random()*countries.length)];
-  }while(excludeCode && pick.code === excludeCode && countries.length > 1);
-  return pick;
-}
-
+// SPIN
 function spin(){
-  if(!countries.length) return;
 
-  clearTimer();
-  clearSpin();
-  clearReveal();
+let spins=0;
+let targetInput=document.getElementById("target").value.toLowerCase();
 
-  const spinMs = Math.max(1, parseFloat(document.getElementById("spinSeconds").value || 4)) * 1000;
-  const flickerEvery = 70;
-  const totalTicks = Math.floor(spinMs / flickerEvery);
+let target=countries.find(x=>x.n.toLowerCase()===targetInput);
 
-  const target = getTargetCountry();
-  const finalCountry = target || randomCountry(lastFinalCode);
+let final=target || countries[Math.floor(Math.random()*countries.length)];
 
-  let ticks = 0;
+let interval=setInterval(()=>{
 
-  spinInterval = setInterval(() => {
-    const flickerCountry = randomCountry();
-    document.getElementById("flag").src = flickerCountry.flag;
-    ticks++;
+let r=countries[Math.floor(Math.random()*countries.length)];
+document.getElementById("flag").src=flag(r.c);
 
-    if(ticks >= totalTicks){
-      clearSpin();
-      current = finalCountry;
-      lastFinalCode = finalCountry.code;
-      document.getElementById("flag").src = finalCountry.flag;
-      setAnswers(finalCountry);
-      startTimer();
-    }
-  }, flickerEvery);
+spins++;
+
+if(spins>50){
+clearInterval(interval);
+
+current=final;
+document.getElementById("flag").src=flag(final.c);
+
+setAnswers(final);
+
 }
 
+},70);
+
+}
+
+// ANSWERS
 function setAnswers(correct){
-  let options = [correct];
 
-  while(options.length < 3){
-    const r = randomCountry();
-    if(!options.some(o => o.code === r.code)) options.push(r);
-  }
+let options=[correct];
 
-  options.sort(() => Math.random() - 0.5);
-
-  document.getElementById("a").innerText = "A) " + options[0].name;
-  document.getElementById("b").innerText = "B) " + options[1].name;
-  document.getElementById("c").innerText = "C) " + options[2].name;
-
-  window.correct = options.findIndex(o => o.code === correct.code);
+while(options.length<3){
+let r=countries[Math.floor(Math.random()*countries.length)];
+if(!options.includes(r)) options.push(r);
 }
 
+options.sort(()=>Math.random()-0.5);
+
+a.innerText="A) "+options[0].n;
+b.innerText="B) "+options[1].n;
+c.innerText="C) "+options[2].n;
+
+window.correct=options.indexOf(correct);
+}
+
+// REVEAL
 function reveal(){
-  const els = document.querySelectorAll(".answer");
-  els.forEach(el => el.classList.remove("correct"));
-  if(typeof window.correct === "number"){
-    els[window.correct].classList.add("correct");
-  }
+document.querySelectorAll(".answer")[correct].classList.add("correct");
 }
 
-function clearReveal(){
-  document.querySelectorAll(".answer").forEach(el => el.classList.remove("correct"));
-}
-
-function startTimer(){
-  const timer = document.getElementById("timer");
-  let time = parseInt(document.getElementById("timerSeconds").value || "5", 10);
-  timer.innerText = time;
-
-  clearTimer();
-
-  timerInterval = setInterval(() => {
-    time--;
-    timer.innerText = time;
-    if(time <= 0){
-      clearTimer();
-    }
-  }, 1000);
-}
-
-function clearTimer(){
-  if(timerInterval){
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-}
-
-function clearSpin(){
-  if(spinInterval){
-    clearInterval(spinInterval);
-    spinInterval = null;
-  }
-}
-
-function clearTarget(){
-  document.getElementById("targetCountry").value = "";
-}
-
-function toggleControls(){
-  controlsHidden = !controlsHidden;
-  document.getElementById("controls").classList.toggle("hidden", controlsHidden);
+// TOGGLES
+function toggleAnswers(){
+answers.style.display = answers.style.display === "none" ? "block" : "none";
 }
 
 function toggleCounter(){
-  document.getElementById("counter").classList.toggle("hidden");
+counter.style.display = counter.style.display === "none" ? "block" : "none";
 }
 
 function toggleTimer(){
-  document.getElementById("timer").classList.toggle("hidden");
+timer.style.display = timer.style.display === "none" ? "flex" : "none";
 }
 
-function toggleQuestionText(){
-  document.getElementById("questionText").classList.toggle("hidden");
+function toggleQuestion(){
+qbox.style.display = qbox.style.display === "none" ? "block" : "none";
 }
 
-function toggleQuestionBox(){
-  const box = document.getElementById("questionBox");
-  if(box.style.background === "transparent"){
-    box.style.background = "var(--question-box-color)";
-    box.style.boxShadow = "";
-  }else{
-    box.style.background = "transparent";
-    box.style.boxShadow = "none";
-  }
+// LAYOUT
+function setLayout(type){
+if(type==="16:9"){
+document.querySelector(".frame").style.width="900px";
+document.querySelector(".frame").style.height="500px";
+}else{
+document.querySelector(".frame").style.width="405px";
+document.querySelector(".frame").style.height="720px";
+}
 }
 
-function toggleAnswers(){
-  document.getElementById("answers").classList.toggle("hidden");
-}
+// START
+spin();
 
-function applyStyles(){
-  const counterText = document.getElementById("counterTextInput").value;
-  const questionText = document.getElementById("questionTextInput").value;
-  const bgColor = document.getElementById("bgColor").value;
-  const counterColor = document.getElementById("counterColor").value;
-  const counterOutline = document.getElementById("counterOutline").value;
-  const questionTextColor = document.getElementById("questionTextColor").value;
-  const questionBoxColor = document.getElementById("questionBoxColor").value;
-  const answerColor = document.getElementById("answerColor").value;
-  const correctColor = document.getElementById("correctColor").value;
-
-  document.documentElement.style.setProperty("--bg", bgColor);
-  document.documentElement.style.setProperty("--counter-color", counterColor);
-  document.documentElement.style.setProperty("--counter-outline", counterOutline);
-  document.documentElement.style.setProperty("--question-text-color", questionTextColor);
-  document.documentElement.style.setProperty("--question-box-color", questionBoxColor);
-  document.documentElement.style.setProperty("--answer-color", answerColor);
-  document.documentElement.style.setProperty("--correct-color", correctColor);
-
-  document.body.style.background = bgColor;
-  document.getElementById("frame").style.background = bgColor;
-  document.getElementById("counter").textContent = counterText;
-  document.getElementById("questionText").textContent = questionText;
-}
-
-function applyLayout(){
-  const layout = document.getElementById("layoutSelect").value;
-
-  if(layout === "16:9"){
-    document.documentElement.style.setProperty("--frame-w", "960px");
-    document.documentElement.style.setProperty("--frame-h", "540px");
-    document.documentElement.style.setProperty("--flag-w", "420px");
-    document.documentElement.style.setProperty("--flag-h", "240px");
-
-    document.getElementById("counter").style.fontSize = "64px";
-    document.getElementById("questionText").style.fontSize = "28px";
-    document.querySelectorAll(".answer").forEach(el => el.style.fontSize = "34px");
-  }else{
-    document.documentElement.style.setProperty("--frame-w", "405px");
-    document.documentElement.style.setProperty("--frame-h", "720px");
-    document.documentElement.style.setProperty("--flag-w", "320px");
-    document.documentElement.style.setProperty("--flag-h", "190px");
-
-    document.getElementById("counter").style.fontSize = "56px";
-    document.getElementById("questionText").style.fontSize = "20px";
-    document.querySelectorAll(".answer").forEach(el => el.style.fontSize = "28px");
-  }
-}
-
-load();
 </script>
 
 </body>
