@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+
 body{
 margin:0;
 font-family:Arial, Helvetica, sans-serif;
@@ -13,18 +14,32 @@ background:#00ff00;
 display:flex;
 justify-content:center;
 align-items:center;
-height:100vh;
+min-height:100vh;
 }
 
 /* FRAME */
 
 .frame{
-width:405px;
-height:720px;
 display:flex;
 flex-direction:column;
 align-items:center;
-padding:15px;
+justify-content:center;
+padding:20px;
+gap:15px;
+}
+
+/* DEFAULT 9:16 */
+
+.frame.vertical{
+width:405px;
+height:720px;
+}
+
+/* 16:9 */
+
+.frame.horizontal{
+width:900px;
+height:500px;
 }
 
 /* COUNTER */
@@ -59,7 +74,6 @@ font-size:24px;
 background:white;
 padding:12px 25px;
 border-radius:30px;
-margin:15px 0;
 }
 
 .question{
@@ -77,7 +91,6 @@ border-radius:15px;
 display:flex;
 justify-content:center;
 align-items:center;
-margin-bottom:15px;
 }
 
 .flagbox img{
@@ -89,7 +102,11 @@ object-fit:contain;
 /* ANSWERS */
 
 .answers{
+display:flex;
+flex-direction:column;
+gap:8px;
 width:100%;
+align-items:center;
 }
 
 .answer{
@@ -126,12 +143,14 @@ width:100%;
 margin-bottom:5px;
 padding:8px;
 }
+
 </style>
 </head>
 
 <body>
 
 <div class="controls">
+
 <b>Controls</b>
 
 <input id="target" placeholder="Type country (e.g. France)">
@@ -145,13 +164,13 @@ padding:8px;
 <button onclick="toggleQuestion()">Toggle Question</button>
 
 <select onchange="setLayout(this.value)">
-<option value="9:16">9:16</option>
-<option value="16:9">16:9</option>
+<option value="vertical">9:16</option>
+<option value="horizontal">16:9</option>
 </select>
 
 </div>
 
-<div class="frame">
+<div class="frame vertical" id="frame">
 
 <div class="counter" id="counter">1 / 30</div>
 
@@ -175,68 +194,62 @@ padding:8px;
 
 <script>
 
-// STATIC COUNTRIES (WORKING — NO API)
+// FULL COUNTRY LIST (~195)
 const countries = [
-{n:"France",c:"fr"},
-{n:"Germany",c:"de"},
-{n:"Spain",c:"es"},
-{n:"Italy",c:"it"},
-{n:"United Kingdom",c:"gb"},
-{n:"United States",c:"us"},
-{n:"Canada",c:"ca"},
-{n:"Brazil",c:"br"},
-{n:"Argentina",c:"ar"},
-{n:"Mexico",c:"mx"},
-{n:"Japan",c:"jp"},
-{n:"China",c:"cn"},
-{n:"India",c:"in"},
-{n:"Australia",c:"au"},
-{n:"South Africa",c:"za"},
-{n:"Russia",c:"ru"},
-{n:"Sweden",c:"se"},
-{n:"Norway",c:"no"},
-{n:"Denmark",c:"dk"},
-{n:"Finland",c:"fi"},
-{n:"Netherlands",c:"nl"},
-{n:"Belgium",c:"be"},
-{n:"Portugal",c:"pt"},
-{n:"Greece",c:"gr"},
-{n:"Turkey",c:"tr"},
-{n:"Saudi Arabia",c:"sa"},
-{n:"South Korea",c:"kr"},
-{n:"Indonesia",c:"id"},
-{n:"Thailand",c:"th"},
-{n:"Philippines",c:"ph"}
+"af","al","dz","ad","ao","ar","am","au","at","az",
+"bs","bh","bd","bb","by","be","bz","bj","bt","bo",
+"ba","bw","br","bn","bg","bf","bi","kh","cm","ca",
+"cv","cf","td","cl","cn","co","km","cg","cr","hr",
+"cu","cy","cz","dk","dj","do","ec","eg","sv","gq",
+"er","ee","sz","et","fj","fi","fr","ga","gm","ge",
+"de","gh","gr","gd","gt","gn","gw","gy","ht","hn",
+"hu","is","in","id","ir","iq","ie","il","it","jm",
+"jp","jo","kz","ke","ki","kp","kr","kw","kg","la",
+"lv","lb","ls","lr","ly","lt","lu","mg","mw","my",
+"mv","ml","mt","mh","mr","mu","mx","fm","md","mc",
+"mn","me","ma","mz","mm","na","nr","np","nl","nz",
+"ni","ne","ng","mk","no","om","pk","pw","pa","pg",
+"py","pe","ph","pl","pt","qa","ro","ru","rw","kn",
+"lc","vc","ws","sm","st","sa","sn","rs","sc","sl",
+"sg","sk","si","sb","so","za","ss","es","lk","sd",
+"sr","se","ch","sy","tw","tj","tz","th","tl","tg",
+"to","tt","tn","tr","tm","tv","ug","ua","ae","gb",
+"us","uy","uz","vu","va","ve","vn","ye","zm","zw"
 ];
 
+// flag function
 function flag(code){
 return `https://flagcdn.com/w640/${code}.png`;
 }
 
 let current;
 
-// SPIN
+// SPIN (FAST 4s)
 function spin(){
 
-let spins=0;
-let targetInput=document.getElementById("target").value.toLowerCase();
+let spins = 0;
+let totalSpins = 60; // ~4 seconds fast
 
-let target=countries.find(x=>x.n.toLowerCase()===targetInput);
+let input = document.getElementById("target").value.toLowerCase();
 
-let final=target || countries[Math.floor(Math.random()*countries.length)];
+// find matching code
+let targetCode = countries.find(c => c === input || input.includes(c));
 
-let interval=setInterval(()=>{
+let final = targetCode || countries[Math.floor(Math.random()*countries.length)];
 
-let r=countries[Math.floor(Math.random()*countries.length)];
-document.getElementById("flag").src=flag(r.c);
+let interval = setInterval(()=>{
+
+let r = countries[Math.floor(Math.random()*countries.length)];
+document.getElementById("flag").src = flag(r);
 
 spins++;
 
-if(spins>50){
+if(spins >= totalSpins){
+
 clearInterval(interval);
 
-current=final;
-document.getElementById("flag").src=flag(final.c);
+current = final;
+document.getElementById("flag").src = flag(final);
 
 setAnswers(final);
 
@@ -258,9 +271,9 @@ if(!options.includes(r)) options.push(r);
 
 options.sort(()=>Math.random()-0.5);
 
-a.innerText="A) "+options[0].n;
-b.innerText="B) "+options[1].n;
-c.innerText="C) "+options[2].n;
+a.innerText="A) "+options[0].toUpperCase();
+b.innerText="B) "+options[1].toUpperCase();
+c.innerText="C) "+options[2].toUpperCase();
 
 window.correct=options.indexOf(correct);
 }
@@ -271,34 +284,18 @@ document.querySelectorAll(".answer")[correct].classList.add("correct");
 }
 
 // TOGGLES
-function toggleAnswers(){
-answers.style.display = answers.style.display === "none" ? "block" : "none";
-}
+function toggleAnswers(){answers.style.display = answers.style.display==="none"?"flex":"none";}
+function toggleCounter(){counter.style.display = counter.style.display==="none"?"block":"none";}
+function toggleTimer(){timer.style.display = timer.style.display==="none"?"flex":"none";}
+function toggleQuestion(){qbox.style.display = qbox.style.display==="none"?"block":"none";}
 
-function toggleCounter(){
-counter.style.display = counter.style.display === "none" ? "block" : "none";
-}
-
-function toggleTimer(){
-timer.style.display = timer.style.display === "none" ? "flex" : "none";
-}
-
-function toggleQuestion(){
-qbox.style.display = qbox.style.display === "none" ? "block" : "none";
-}
-
-// LAYOUT
+// LAYOUT FIX
 function setLayout(type){
-if(type==="16:9"){
-document.querySelector(".frame").style.width="900px";
-document.querySelector(".frame").style.height="500px";
-}else{
-document.querySelector(".frame").style.width="405px";
-document.querySelector(".frame").style.height="720px";
-}
+let frame = document.getElementById("frame");
+frame.className = "frame " + type;
 }
 
-// START
+// start
 spin();
 
 </script>
